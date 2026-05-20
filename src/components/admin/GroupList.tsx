@@ -68,7 +68,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints }: {
         .select('*')
         .eq('group_id', groupId),
     ])
-    const sorted = (prog ?? []).sort((a: ProgressItem, b: ProgressItem) =>
+    const sorted = ((prog ?? []) as unknown as ProgressItem[]).sort((a: ProgressItem, b: ProgressItem) =>
       a.checkpoints.order_index - b.checkpoints.order_index
     )
     // Mappa checkpoint_id -> qr_scan
