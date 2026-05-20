@@ -22,7 +22,9 @@ export interface Checkpoint {
   latitude: number | null
   longitude: number | null
   requires_media: boolean
+  has_survey: boolean
   geo_radius_meters: number
+  qr_token: string
   created_at: string
 }
 
@@ -34,6 +36,7 @@ export interface Group {
   current_checkpoint_index: number
   finished: boolean
   finished_at: string | null
+  qr_issue_reported: boolean
   created_at: string
 }
 
@@ -63,4 +66,33 @@ export interface GroupPosition {
   longitude: number
   accuracy: number | null
   updated_at: string
+}
+
+export interface Feedback {
+  id: string
+  group_id: string
+  checkpoint_id: string
+  event_id: string
+  answers: Record<string, number>   // { q1: 4, q2: 3, ... }
+  message: string | null
+  created_at: string
+}
+
+export interface SurveyQuestion {
+  id: string
+  order_index: number
+  text: string
+  active: boolean
+  created_at: string
+}
+
+export interface QrScan {
+  id: string
+  group_id: string
+  checkpoint_id: string
+  event_id: string
+  latitude: number | null
+  longitude: number | null
+  accuracy: number | null
+  scanned_at: string
 }

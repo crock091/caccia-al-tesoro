@@ -8,7 +8,7 @@ import type { Submission } from '@/lib/types'
 
 interface SubmissionWithGroup extends Submission {
   groups: { name: string }
-  checkpoints: { title: string }
+  checkpoints: { title: string; has_survey: boolean }
 }
 
 export default function SubmissionsPanel({ eventId }: { eventId: string }) {
@@ -20,7 +20,7 @@ export default function SubmissionsPanel({ eventId }: { eventId: string }) {
   async function fetchSubmissions() {
     const { data } = await supabase
       .from('submissions')
-      .select('*, groups(name), checkpoints(title)')
+      .select('*, groups(name), checkpoints(title, has_survey)')
       .eq('status', 'pending')
       .in('group_id',
         (await supabase.from('groups').select('id').eq('event_id', eventId)).data?.map(g => g.id) ?? []
@@ -55,32 +55,39 @@ export default function SubmissionsPanel({ eventId }: { eventId: string }) {
       .eq('id', submissionId)
 
     if (approve) {
-      // Avanza il gruppo alla tappa successiva
-      const { data: group } = await supabase
-        .from('groups')
-        .select('current_checkpoint_index')
-        .eq('id', groupId)
-        .single()
+      // Se il checkpoint ha anche il sondaggio, NON avanzare il gruppo:
+      // ci penserà l'invio del sondaggio da parte del partecipante
+      const submission = submissions.find(s => s.id === submissionId)
+      const hasSurvey = submission?.checkpoints?.has_survey ?? false
 
-      const { data: totalCheckpoints } = await supabase
-        .from('checkpoints')
-        .select('id', { count: 'exact' })
-        .eq('event_id', eventId)
+      if (!hasSurvey) {
+        // Avanza il gruppo alla tappa successiva
+        const { data: group } = await supabase
+          .from('groups')
+          .select('current_checkpoint_index')
+          .eq('id', groupId)
+          .single()
 
-      const nextIndex = (group?.current_checkpoint_index ?? 0) + 1
-      const total = totalCheckpoints?.length ?? 0
+        const { data: totalCheckpoints } = await supabase
+          .from('checkpoints')
+          .select('id', { count: 'exact' })
+          .eq('event_id', eventId)
 
-      await supabase
-        .from('groups')
-        .update({
-          current_checkpoint_index: nextIndex,
-          finished: nextIndex >= total,
-          finished_at: nextIndex >= total ? new Date().toISOString() : null,
-        })
-        .eq('id', groupId)
+        const nextIndex = (group?.current_checkpoint_index ?? 0) + 1
+        const total = totalCheckpoints?.length ?? 0
 
-      // Log progresso
-      await supabase.from('group_progress').insert({ group_id: groupId, checkpoint_id: checkpointId })
+        await supabase
+          .from('groups')
+          .update({
+            current_checkpoint_index: nextIndex,
+            finished: nextIndex >= total,
+            finished_at: nextIndex >= total ? new Date().toISOString() : null,
+          })
+          .eq('id', groupId)
+
+        // Log progresso
+        await supabase.from('group_progress').insert({ group_id: groupId, checkpoint_id: checkpointId })
+      }
     }
 
     setActionLoading(null)

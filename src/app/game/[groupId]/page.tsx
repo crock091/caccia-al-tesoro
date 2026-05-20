@@ -1,10 +1,14 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { MapPin, Camera, Loader2, CheckCircle, Clock, XCircle, Upload, Trophy } from 'lucide-react'
-import type { Checkpoint, Group, Submission } from '@/lib/types'
+import { MapPin, Camera, Loader2, CheckCircle, Clock, XCircle, Upload, Trophy, QrCode } from 'lucide-react'
+import type { Checkpoint, Group, Submission, SurveyQuestion } from '@/lib/types'
+
+const QrScannerModal = dynamic(() => import('@/components/QrScannerModal'), { ssr: false })
+const SurveyForm = dynamic(() => import('@/components/SurveyForm'), { ssr: false })
 
 export default function GamePage({ params }: { params: Promise<{ groupId: string }> }) {
   const [groupId, setGroupId] = useState('')
@@ -14,7 +18,15 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
   const [uploading, setUploading] = useState(false)
   const [unlockMessage, setUnlockMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [gpsStatus, setGpsStatus] = useState<'waiting' | 'active' | 'denied' | 'unavailable'>('waiting')
+  const [qrVerified, setQrVerified] = useState(false)
+  const [reportingQr, setReportingQr] = useState(false)
+  const [showScanner, setShowScanner] = useState(false)
+  const [surveySubmitted, setSurveySubmitted] = useState(false)
+  const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const checkpointsRef = useRef<Checkpoint[]>([])
+  const lastPositionRef = useRef<{ latitude: number; longitude: number; accuracy: number | null } | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -25,21 +37,67 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
     })
   }, [])
 
+  // Subscription Realtime separata con cleanup (evita doppie iscrizioni in StrictMode)
+  useEffect(() => {
+    if (!groupId) return
+
+    // Nome univoco per evitare collisioni se StrictMode fa unmount+remount
+    // prima che removeChannel asincrono completi
+    const channelName = `group-${groupId}-${Date.now()}`
+    const channel = supabase
+      .channel(channelName)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'groups',
+        filter: `id=eq.${groupId}`,
+      }, (payload) => {
+        const updated = payload.new as Group
+        setGroup(updated)
+        const newCp = checkpointsRef.current[updated.current_checkpoint_index]
+        if (newCp?.unlock_message) {
+          setUnlockMessage(newCp.unlock_message)
+        }
+        // Verifica QR per la nuova tappa
+        setQrVerified(newCp ? !!localStorage.getItem('qr_verified_' + newCp.id) : false)
+        setSubmission(null)
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [groupId])
+
   async function init(gid: string) {
-    const [{ data: g }, { data: cps }] = await Promise.all([
+    const [{ data: g }, { data: cps }, { data: sqData }] = await Promise.all([
       supabase.from('groups').select('*').eq('id', gid).single(),
       supabase.from('checkpoints').select('*').order('order_index'),
+      supabase.from('survey_questions').select('*').eq('active', true).order('order_index'),
     ])
 
     if (!g) { router.push('/'); return }
 
     setGroup(g)
+    setSurveyQuestions(sqData ?? [])
     const filteredCps = (cps ?? []).filter((c: Checkpoint) => c.event_id === g.event_id)
     setCheckpoints(filteredCps)
+    checkpointsRef.current = filteredCps
 
-    // Carica submission corrente se esiste
+    // Controlla se QR è già stato scansionato per la tappa corrente
     const currentCp = filteredCps[g.current_checkpoint_index]
     if (currentCp) {
+      setQrVerified(!!localStorage.getItem('qr_verified_' + currentCp.id))
+      // Controlla se il feedback è già stato inviato per questa tappa
+      if (currentCp.has_survey) {
+        const { data: fb } = await supabase
+          .from('feedback')
+          .select('id')
+          .eq('group_id', gid)
+          .eq('checkpoint_id', currentCp.id)
+          .maybeSingle()
+        setSurveySubmitted(!!fb)
+      }
       const { data: sub } = await supabase
         .from('submissions')
         .select('*')
@@ -51,39 +109,39 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
     setLoading(false)
     startGpsTracking(gid)
-
-    // Realtime: ascolta aggiornamenti del gruppo (approvazione media)
-    supabase
-      .channel(`group-${gid}`)
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'groups',
-        filter: `id=eq.${gid}`,
-      }, (payload) => {
-        const updated = payload.new as Group
-        setGroup(updated)
-        const newCp = filteredCps[updated.current_checkpoint_index]
-        if (newCp?.unlock_message) {
-          setUnlockMessage(newCp.unlock_message)
-        }
-        setSubmission(null)
-      })
-      .subscribe()
   }
 
   function startGpsTracking(gid: string) {
-    if (!navigator.geolocation) return
+    if (!navigator.geolocation) {
+      setGpsStatus('unavailable')
+      return
+    }
 
-    navigator.geolocation.watchPosition(async (pos) => {
-      await supabase.from('group_positions').upsert({
-        group_id: gid,
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        accuracy: pos.coords.accuracy,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'group_id' })
-    }, undefined, { enableHighAccuracy: true, maximumAge: 10000 })
+    navigator.geolocation.watchPosition(
+      async (pos) => {
+        setGpsStatus('active')
+        lastPositionRef.current = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? null,
+        }
+        await supabase.from('group_positions').upsert({
+          group_id: gid,
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'group_id' })
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setGpsStatus('denied')
+        } else {
+          setGpsStatus('unavailable')
+        }
+      },
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    )
   }
 
   async function handleMediaUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -138,6 +196,85 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
         setSubmission(payload.new as Submission)
       })
       .subscribe()
+  }
+
+  async function handleSurveySubmit(answers: Record<string, number>, message: string) {
+    if (!group) return
+    const currentCp = checkpoints[group.current_checkpoint_index]
+    if (!currentCp) return
+
+    await supabase.from('feedback').upsert({
+      group_id: group.id,
+      checkpoint_id: currentCp.id,
+      event_id: group.event_id,
+      answers,
+      message: message || null,
+    }, { onConflict: 'group_id,checkpoint_id' })
+
+    setSurveySubmitted(true)
+    // Avanza il gruppo
+    await handleAdvanceWithoutMedia(currentCp)
+  }
+
+  async function handleQrScan(decodedText: string) {
+    setShowScanner(false)
+    // Estrai il token dall'URL scansionato (es. https://domain.com/scan/uuid)
+    const match = decodedText.match(/\/scan\/([0-9a-f-]{36})/i)
+    if (!match) {
+      alert('QR non riconosciuto. Assicurati di inquadrare il codice QR giusto.')
+      return
+    }
+    const token = match[1]
+
+    const { data: cp } = await supabase
+      .from('checkpoints')
+      .select('*')
+      .eq('qr_token', token)
+      .single()
+
+    if (!cp || !group) {
+      alert('QR non valido.')
+      return
+    }
+
+    const currentCpLocal = checkpoints[group.current_checkpoint_index]
+    if (cp.id !== currentCpLocal?.id) {
+      alert('Questo non è il QR della tappa attuale!')
+      return
+    }
+
+    // Salva posizione al momento della scansione
+    const pos = lastPositionRef.current
+    await supabase.from('qr_scans').upsert({
+      group_id: group.id,
+      checkpoint_id: cp.id,
+      event_id: cp.event_id,
+      latitude: pos?.latitude ?? null,
+      longitude: pos?.longitude ?? null,
+      accuracy: pos?.accuracy ?? null,
+    }, { onConflict: 'group_id,checkpoint_id' })
+
+    if (cp.has_survey) {
+      // Tappa con sondaggio: sblocca QR ma non avanzare — il sondaggio lo fa
+      localStorage.setItem('qr_verified_' + cp.id, '1')
+      setQrVerified(true)
+    } else if (cp.requires_media) {
+      localStorage.setItem('qr_verified_' + cp.id, '1')
+      setQrVerified(true)
+    } else {
+      await handleAdvanceWithoutMedia(cp)
+      setQrVerified(false)
+    }
+  }
+
+  async function handleReportQrIssue() {
+    if (!group) return
+    setReportingQr(true)
+    await supabase
+      .from('groups')
+      .update({ qr_issue_reported: true })
+      .eq('id', group.id)
+    setReportingQr(false)
   }
 
   async function handleAdvanceWithoutMedia(currentCp: Checkpoint) {
@@ -260,10 +397,30 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
           )}
 
           {/* GPS indicator */}
-          <div className="flex items-center gap-1.5 text-xs text-green-600">
-            <MapPin size={13} />
-            <span>Posizione GPS condivisa con l&apos;organizzatore</span>
-          </div>
+          {gpsStatus === 'active' && (
+            <div className="flex items-center gap-1.5 text-xs text-green-600">
+              <MapPin size={13} />
+              <span>Posizione GPS condivisa con l&apos;organizzatore</span>
+            </div>
+          )}
+          {gpsStatus === 'waiting' && (
+            <div className="flex items-center gap-1.5 text-xs text-amber-500">
+              <MapPin size={13} />
+              <span>In attesa del permesso GPS…</span>
+            </div>
+          )}
+          {gpsStatus === 'denied' && (
+            <div className="flex items-center gap-1.5 text-xs text-red-500">
+              <MapPin size={13} />
+              <span>GPS negato — vai in Impostazioni e consenti la posizione per questa pagina</span>
+            </div>
+          )}
+          {gpsStatus === 'unavailable' && (
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <MapPin size={13} />
+              <span>GPS non disponibile su questo dispositivo</span>
+            </div>
+          )}
         </div>
 
         {/* Sezione upload media */}
@@ -277,7 +434,35 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
               Scatta una foto o registra un video per sbloccare la prossima tappa.
             </p>
 
-            {!submission && (
+            {!submission && !qrVerified && (
+              <div className="flex flex-col items-center gap-3 py-4 text-center">
+                <QrCode size={40} className="text-gray-300" />
+                <p className="text-sm text-gray-500">
+                  Scansiona il QR della tappa per sbloccare l&apos;upload.
+                </p>
+                <button
+                  onClick={() => setShowScanner(true)}
+                  className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold px-5 py-2.5 rounded-2xl transition-colors"
+                >
+                  <Camera size={17} /> Apri fotocamera
+                </button>
+                {!group?.qr_issue_reported ? (
+                  <button
+                    onClick={handleReportQrIssue}
+                    disabled={reportingQr}
+                    className="text-xs text-red-500 underline disabled:opacity-50"
+                  >
+                    {reportingQr ? 'Segnalazione inviata…' : 'QR non trovato? Segnalalo all’organizzatore'}
+                  </button>
+                ) : (
+                  <p className="text-xs text-red-500 font-medium">
+                    ⚠️ Segnalazione inviata — attendi che l&apos;organizzatore ti sblocchi
+                  </p>
+                )}
+              </div>
+            )}
+
+            {!submission && qrVerified && (
               <>
                 <input
                   ref={fileInputRef}
@@ -316,7 +501,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
                     submission.status === 'rejected' ? 'text-red-800' :
                     'text-amber-800'
                   }`}>
-                    {submission.status === 'approved' && '✓ Approvato! Tappa sbloccata.'}
+                    {submission.status === 'approved' && (currentCp.has_survey ? '✓ Approvato! Compila il sondaggio qui sotto.' : '✓ Approvato! Tappa sbloccata.')}
                     {submission.status === 'rejected' && 'Rifiutato. Riprova!'}
                     {submission.status === 'pending' && 'In attesa di approvazione...'}
                   </p>
@@ -334,16 +519,82 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
           </div>
         )}
 
-        {/* Avanza senza media (se non richiesto) */}
-        {!currentCp.requires_media && (
-          <button
-            onClick={() => handleAdvanceWithoutMedia(currentCp)}
-            className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 rounded-2xl transition-colors text-lg"
-          >
-            {isLastCheckpoint ? '🏁 Sono arrivato! Finisci!' : '➡️ Sono arrivato alla tappa'}
-          </button>
+        {/* Sondaggio di valutazione (has_survey=true) */}
+        {currentCp.has_survey && qrVerified && !surveySubmitted &&
+          (!currentCp.requires_media || submission?.status === 'approved') && (
+          <SurveyForm questions={surveyQuestions} onSubmit={handleSurveySubmit} />
+        )}
+
+        {/* Tappa con sondaggio ma QR non ancora scansionato (solo se non richiede media: in quel caso il QR prompt è già nella sezione upload) */}
+        {currentCp.has_survey && !currentCp.requires_media && !qrVerified && (
+          <div className="bg-white rounded-3xl shadow-sm border border-violet-100 p-6 flex flex-col items-center gap-3 text-center">
+            <div className="text-4xl">🌟</div>
+            <p className="font-semibold text-gray-900">Sei all&apos;ultima tappa!</p>
+            <p className="text-sm text-gray-500">
+              Scansiona il QR per accedere al sondaggio di fine giornata.
+            </p>
+            <button
+              onClick={() => setShowScanner(true)}
+              className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold px-5 py-2.5 rounded-2xl transition-colors"
+            >
+              <Camera size={17} /> Apri fotocamera
+            </button>
+            {!group?.qr_issue_reported ? (
+              <button
+                onClick={handleReportQrIssue}
+                disabled={reportingQr}
+                className="text-xs text-red-500 underline disabled:opacity-50"
+              >
+                {reportingQr ? 'Segnalazione inviata…' : "QR non trovato? Segnalalo all'organizzatore"}
+              </button>
+            ) : (
+              <p className="text-xs text-red-500 font-medium">
+                ⚠️ Segnalazione inviata — attendi che l&apos;organizzatore ti sblocchi
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Tappa QR-only (nessun media, nessun sondaggio): richiede la scansione del QR */}
+        {!currentCp.requires_media && !currentCp.has_survey && (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center gap-3 text-center">
+            <QrCode size={42} className="text-amber-500" />
+            <p className="font-semibold text-gray-900">
+              {isLastCheckpoint ? '🏁 Scansiona il QR per concludere!' : 'Scansiona il QR per avanzare'}
+            </p>
+            <p className="text-sm text-gray-500">
+              Inquadra il codice QR della tappa con la fotocamera.
+            </p>
+            <button
+              onClick={() => setShowScanner(true)}
+              className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold px-5 py-2.5 rounded-2xl transition-colors"
+            >
+              <Camera size={17} /> Apri fotocamera
+            </button>
+            {!group?.qr_issue_reported ? (
+              <button
+                onClick={handleReportQrIssue}
+                disabled={reportingQr}
+                className="text-xs text-red-500 underline disabled:opacity-50"
+              >
+                {reportingQr ? 'Segnalazione inviata…' : "QR non trovato? Segnalalo all'organizzatore"}
+              </button>
+            ) : (
+              <p className="text-xs text-red-500 font-medium">
+                ⚠️ Segnalazione inviata — attendi che l&apos;organizzatore ti sblocchi
+              </p>
+            )}
+          </div>
         )}
       </div>
+
+      {/* Modal scanner QR */}
+      {showScanner && (
+        <QrScannerModal
+          onScan={handleQrScan}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
     </main>
   )
 }

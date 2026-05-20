@@ -1,14 +1,15 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import AdminLogoutButton from '@/components/admin/AdminLogoutButton'
-import { Trophy, MapPin, Users } from 'lucide-react'
+import { Trophy, MapPin, Users, Star } from 'lucide-react'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/admin/login')
+  // Se non loggato, mostra solo children (es. pagina login) senza nav.
+  // proxy.ts gestisce già il redirect per le route protette.
+  if (!user) return <>{children}</>
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -27,6 +28,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Link href="/admin/map" className="text-gray-600 hover:text-gray-900 flex items-center gap-1">
                 <MapPin size={15} />
                 Mappa live
+              </Link>
+              <Link href="/admin/survey" className="text-gray-600 hover:text-gray-900 flex items-center gap-1">
+                <Star size={15} />
+                Sondaggio
               </Link>
             </nav>
           </div>

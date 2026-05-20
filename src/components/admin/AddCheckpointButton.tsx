@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Plus, Loader2 } from 'lucide-react'
+import { v4 as uuidv4 } from 'uuid'
 
 export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: string; nextIndex: number }) {
   const [open, setOpen] = useState(false)
@@ -13,6 +14,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
     clue: '',
     unlock_message: '',
     requires_media: false,
+    has_survey: false,
     latitude: '',
     longitude: '',
     geo_radius_meters: '200',
@@ -31,14 +33,16 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
       clue: form.clue,
       unlock_message: form.unlock_message || null,
       requires_media: form.requires_media,
+      has_survey: form.has_survey,
       latitude: form.latitude ? parseFloat(form.latitude) : null,
       longitude: form.longitude ? parseFloat(form.longitude) : null,
       geo_radius_meters: parseInt(form.geo_radius_meters),
+      qr_token: uuidv4(),
     })
 
     setLoading(false)
     setOpen(false)
-    setForm({ title: '', clue: '', unlock_message: '', requires_media: false, latitude: '', longitude: '', geo_radius_meters: '200' })
+    setForm({ title: '', clue: '', unlock_message: '', requires_media: false, has_survey: false, latitude: '', longitude: '', geo_radius_meters: '200' })
     router.refresh()
   }
 
@@ -128,6 +132,20 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
         />
         <label htmlFor="requires_media" className="text-sm text-gray-700">
           Richiede upload foto/video per sbloccare
+        </label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="has_survey"
+          checked={form.has_survey}
+          onChange={e => setForm(f => ({ ...f, has_survey: e.target.checked }))}
+          className="accent-violet-600"
+        />
+        <label htmlFor="has_survey" className="text-sm text-gray-700">
+          <span className="font-medium text-violet-700">Valutazione caccia al tesoro</span>
+          <span className="text-gray-400 text-xs ml-1">(mostra sondaggio di fine giornata)</span>
         </label>
       </div>
 
