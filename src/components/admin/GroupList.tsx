@@ -22,9 +22,20 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints }: {
   const [positions, setPositions] = useState<Record<string, GroupPosition>>({})
   const [feedbackCache, setFeedbackCache] = useState<Record<string, Feedback | null>>({})
   const [qrScansCache, setQrScansCache] = useState<Record<string, Record<string, QrScan>>>({})
+  const [surveyLabels, setSurveyLabels] = useState<Record<string, string>>({})
   const supabase = createClient()
 
   useEffect(() => { setGroups(initialGroups) }, [initialGroups])
+
+  useEffect(() => {
+    supabase.from('survey_questions').select('id, text').order('order_index').then(({ data }) => {
+      if (!data) return
+      const map: Record<string, string> = {}
+      data.forEach((q: { id: string; text: string }) => { map[q.id] = q.text })
+      setSurveyLabels(map)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     const issueGroupIds = groups.filter(g => g.qr_issue_reported).map(g => g.id)
@@ -266,14 +277,15 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints }: {
                 {/* Feedback sondaggio */}
                 {feedbackCache[group.id] && (() => {
                   const fb = feedbackCache[group.id]!
-                  const LABELS: Record<string, string> = {
+                  const LEGACY_LABELS: Record<string, string> = {
                     q1: 'Esperienza complessiva', q2: 'Difficoltà indizi',
                     q3: 'Percorso e luoghi', q4: 'Organizzazione',
                     q5: 'Interesse tappe', q6: 'Divertimento di gruppo',
                     q7: 'Durata evento', q8: 'Chiarezza istruzioni',
                     q9: 'Atmosfera giornata', q10: 'Consiglieresti?',
                   }
-                  const keys = Object.keys(fb.answers).sort()
+                  const getLabel = (k: string) => surveyLabels[k] ?? LEGACY_LABELS[k] ?? k
+                  const keys = Object.keys(fb.answers)
                   const avg = keys.length
                     ? (keys.reduce((s, k) => s + (fb.answers[k] ?? 0), 0) / keys.length).toFixed(1)
                     : '—'
@@ -286,7 +298,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints }: {
                       <div className="grid grid-cols-2 gap-x-3 gap-y-1">
                         {keys.map(k => (
                           <div key={k} className="flex items-center justify-between text-xs">
-                            <span className="text-gray-500 truncate">{LABELS[k] ?? k}</span>
+                            <span className="text-gray-500 truncate">{getLabel(k)}</span>
                             <span className="flex gap-0.5 ml-1 flex-shrink-0">
                               {[1,2,3,4,5].map(s => (
                                 <Star key={s} size={10}
