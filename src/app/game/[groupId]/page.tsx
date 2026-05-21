@@ -184,6 +184,15 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
     setSubmission(sub)
     setUploading(false)
 
+    // Notifica admin
+    if (sub) {
+      fetch('/api/push/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'new_submission', groupId: group.id, groupName: group.name }),
+      }).catch(() => {})
+    }
+
     // Realtime su submissions per aggiornare stato
     supabase
       .channel(`submission-${sub?.id}`)
@@ -275,19 +284,27 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
       .update({ qr_issue_reported: true })
       .eq('id', group.id)
     setReportingQr(false)
+
+    // Notifica admin
+    fetch('/api/push/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'qr_issue', groupId: group.id, groupName: group.name }),
+    }).catch(() => {})
   }
 
   async function handleAdvanceWithoutMedia(currentCp: Checkpoint) {
     if (!group) return
     const nextIndex = group.current_checkpoint_index + 1
     const total = checkpoints.length
+    const finished = nextIndex >= total
 
     await supabase
       .from('groups')
       .update({
         current_checkpoint_index: nextIndex,
-        finished: nextIndex >= total,
-        finished_at: nextIndex >= total ? new Date().toISOString() : null,
+        finished,
+        finished_at: finished ? new Date().toISOString() : null,
       })
       .eq('id', group.id)
 
@@ -296,7 +313,20 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
       checkpoint_id: currentCp.id,
     })
 
-    const newGroup = { ...group, current_checkpoint_index: nextIndex, finished: nextIndex >= total }
+    // Notifica admin
+    fetch('/api/push/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'checkpoint',
+        groupId: group.id,
+        groupName: group.name,
+        checkpointTitle: currentCp.title,
+        finished,
+      }),
+    }).catch(() => {})
+
+    const newGroup = { ...group, current_checkpoint_index: nextIndex, finished }
     setGroup(newGroup)
     const newCp = checkpoints[nextIndex]
     if (newCp?.unlock_message) setUnlockMessage(newCp.unlock_message)

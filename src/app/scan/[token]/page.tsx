@@ -115,6 +115,19 @@ export default function ScanPage({ params }: { params: Promise<{ token: string }
       checkpoint_id: cp.id,
     })
 
+    // Notifica admin
+    fetch('/api/push/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'checkpoint',
+        groupId: g.id,
+        groupName: g.name,
+        checkpointTitle: cp.title,
+        finished,
+      }),
+    }).catch(() => {})
+
     setState(finished ? 'finished' : 'success')
   }
 

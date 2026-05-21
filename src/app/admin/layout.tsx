@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import AdminLogoutButton from '@/components/admin/AdminLogoutButton'
+import PushSubscribeButton from '@/components/admin/PushSubscribeButton'
+import ServiceWorkerRegistrar from '@/components/admin/ServiceWorkerRegistrar'
 import { Trophy, MapPin, Users, Star } from 'lucide-react'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -13,6 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <ServiceWorkerRegistrar />
       <header className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
@@ -36,7 +39,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </Link>
             </nav>
           </div>
-          <AdminLogoutButton />
+          <div className="flex items-center gap-3">
+            <PushSubscribeButton />
+            <AdminLogoutButton />
+          </div>
         </div>
         {/* Navigazione mobile */}
         <nav className="sm:hidden flex items-center gap-1 mt-2 border-t border-gray-100 pt-2">
