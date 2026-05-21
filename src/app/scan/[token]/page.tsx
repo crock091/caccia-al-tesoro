@@ -84,6 +84,18 @@ export default function ScanPage({ params }: { params: Promise<{ token: string }
     if (cp.requires_media) {
       // Segna che il QR è stato scansionato per questa tappa
       localStorage.setItem('qr_verified_' + cp.id, '1')
+      // Notifica admin che il QR è stato trovato (media richiesta)
+      fetch('/api/push/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'checkpoint',
+          groupId: g.id,
+          groupName: g.name,
+          checkpointTitle: cp.title,
+          finished: false,
+        }),
+      }).catch(() => {})
       setState('needs_media')
       return
     }
@@ -91,6 +103,18 @@ export default function ScanPage({ params }: { params: Promise<{ token: string }
     // Tappa con sondaggio (e nessun media) → torna alla game page per compilare
     if (cp.has_survey) {
       localStorage.setItem('qr_verified_' + cp.id, '1')
+      // Notifica admin che il QR è stato trovato (sondaggio da compilare)
+      fetch('/api/push/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'checkpoint',
+          groupId: g.id,
+          groupName: g.name,
+          checkpointTitle: cp.title,
+          finished: false,
+        }),
+      }).catch(() => {})
       setState('needs_survey')
       return
     }

@@ -51,18 +51,22 @@ export async function POST(req: Request) {
     })
 
   } else if (body.type === 'checkpoint') {
+    // Tag unico per ogni evento (non raggruppare notifiche diverse)
+    const tag = body.finished
+      ? 'finished-' + body.groupId
+      : 'checkpoint-' + body.groupId + '-' + Date.now()
     await sendPushToAdmins(
       body.finished
         ? {
             title: '🏆 Percorso completato!',
             body: `${body.groupName} ha terminato la caccia al tesoro`,
-            tag: 'finished-' + body.groupId,
+            tag,
             url: '/admin',
           }
         : {
             title: '🏁 Tappa sbloccata',
             body: `${body.groupName}: ${body.checkpointTitle}`,
-            tag: 'checkpoint-' + body.groupId,
+            tag,
             url: '/admin',
           }
     )
