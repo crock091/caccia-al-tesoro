@@ -58,7 +58,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             <h2 className="font-semibold text-gray-900">Gruppi ({groups?.length ?? 0})</h2>
             <AddGroupButton eventId={id} />
           </div>
-          <GroupList groups={(groups as Group[]) ?? []} totalCheckpoints={checkpoints?.length ?? 0} />
+          <GroupList groups={(groups as Group[]) ?? []} totalCheckpoints={checkpoints?.length ?? 0} eventId={id} />
         </section>
       </div>
 

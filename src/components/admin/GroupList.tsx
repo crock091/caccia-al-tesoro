@@ -11,7 +11,7 @@ interface ProgressItem {
   checkpoints: { title: string; order_index: number }
 }
 
-export default function GroupList({ groups: initialGroups, totalCheckpoints }: { groups: Group[]; totalCheckpoints: number }) {
+export default function GroupList({ groups: initialGroups, totalCheckpoints, eventId }: { groups: Group[]; totalCheckpoints: number; eventId: string }) {
   const [groups, setGroups] = useState(initialGroups)
   const [copied, setCopied] = useState<string | null>(null)
   const [advancing, setAdvancing] = useState<string | null>(null)
@@ -26,6 +26,38 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints }: {
   const supabase = createClient()
 
   useEffect(() => { setGroups(initialGroups) }, [initialGroups])
+
+  // Subscription realtime: aggiorna i gruppi quando i partecipanti avanzano o un admin modifica da un altro client
+  useEffect(() => {
+    const channel = supabase
+      .channel(`groups-event-${eventId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'groups' },
+        (payload) => {
+          if ((payload.new as Group).event_id !== eventId) return
+          setGroups(prev => prev.map(g => g.id === (payload.new as Group).id ? payload.new as Group : g))
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'groups' },
+        (payload) => {
+          if ((payload.new as Group).event_id !== eventId) return
+          setGroups(prev => prev.some(g => g.id === (payload.new as Group).id) ? prev : [...prev, payload.new as Group])
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'groups' },
+        (payload) => {
+          setGroups(prev => prev.filter(g => g.id !== (payload.old as { id: string }).id))
+        }
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId])
 
   useEffect(() => {
     supabase.from('survey_questions').select('id, text').order('order_index').then(({ data }) => {
