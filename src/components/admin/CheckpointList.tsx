@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Trash2, Loader2, MapPin, Camera, QrCode, X, Download, Pencil, Check } from 'lucide-react'
+import { Trash2, Loader2, MapPin, Camera, QrCode, X, Download, Pencil, Check, RefreshCw, ChevronUp, ChevronDown } from 'lucide-react'
 import type { Checkpoint } from '@/lib/types'
 import { QRCodeSVG } from 'qrcode.react'
+import { v4 as uuidv4 } from 'uuid'
 
 /** Converte decimale o DMS (44°41'41.3"N) in numero decimale */
 function parseCoord(value: string): number | null {
@@ -33,14 +34,19 @@ interface EditForm {
   geo_radius_meters: string
 }
 
-export default function CheckpointList({ checkpoints, eventId }: { checkpoints: Checkpoint[]; eventId: string }) {
+export default function CheckpointList({ checkpoints: initialCheckpoints, eventId }: { checkpoints: Checkpoint[]; eventId: string }) {
   const supabase = createClient()
   const router = useRouter()
+  const [checkpoints, setCheckpoints] = useState(initialCheckpoints)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<EditForm | null>(null)
   const [qrCheckpoint, setQrCheckpoint] = useState<Checkpoint | null>(null)
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
+  const [movingId, setMovingId] = useState<string | null>(null)
+
+  useEffect(() => setCheckpoints(initialCheckpoints), [initialCheckpoints])
 
   async function handleDelete(id: string) {
     if (!confirm('Eliminare questa tappa?')) return
@@ -90,6 +96,45 @@ export default function CheckpointList({ checkpoints, eventId }: { checkpoints: 
     setEditingId(null)
     setEditForm(null)
     router.refresh()
+  }
+
+  async function handleRegenerateQr(cp: Checkpoint) {
+    if (!confirm('Rigenerare il QR? I codici QR stampati precedentemente non funzioneranno più.')) return
+    setRegeneratingId(cp.id)
+    const newToken = uuidv4()
+    const { error } = await supabase.from('checkpoints').update({ qr_token: newToken }).eq('id', cp.id)
+    if (!error) {
+      const updated = { ...cp, qr_token: newToken }
+      setCheckpoints(prev => prev.map(c => c.id === cp.id ? updated : c))
+      setQrCheckpoint(updated)
+    }
+    setRegeneratingId(null)
+  }
+
+  async function moveCheckpoint(cp: Checkpoint, dir: 'up' | 'down') {
+    const idx = checkpoints.findIndex(c => c.id === cp.id)
+    const swapIdx = dir === 'up' ? idx - 1 : idx + 1
+    if (swapIdx < 0 || swapIdx >= checkpoints.length) return
+    setMovingId(cp.id)
+
+    // Riordina l'array localmente
+    const reordered = [...checkpoints]
+    const [moved] = reordered.splice(idx, 1)
+    reordered.splice(swapIdx, 0, moved)
+
+    // Riassegna order_index sequenziali (0, 1, 2...) per evitare conflitti UNIQUE
+    const withNewIndices = reordered.map((c, i) => ({ ...c, order_index: i }))
+
+    // Aggiorna ogni checkpoint che ha cambiato posizione (sequenziale per evitare conflitti)
+    for (const c of withNewIndices) {
+      const original = checkpoints.find(o => o.id === c.id)
+      if (original && original.order_index !== c.order_index) {
+        await supabase.from('checkpoints').update({ order_index: c.order_index }).eq('id', c.id)
+      }
+    }
+
+    setCheckpoints(withNewIndices)
+    setMovingId(null)
   }
 
   function downloadQR(cp: Checkpoint) {
@@ -144,6 +189,22 @@ export default function CheckpointList({ checkpoints, eventId }: { checkpoints: 
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={() => moveCheckpoint(cp, 'up')}
+                  disabled={i === 0 || movingId === cp.id}
+                  title="Sposta su"
+                  className="text-gray-300 hover:text-amber-500 transition-colors disabled:opacity-20"
+                >
+                  <ChevronUp size={15} />
+                </button>
+                <button
+                  onClick={() => moveCheckpoint(cp, 'down')}
+                  disabled={i === checkpoints.length - 1 || movingId === cp.id}
+                  title="Sposta giù"
+                  className="text-gray-300 hover:text-amber-500 transition-colors disabled:opacity-20"
+                >
+                  <ChevronDown size={15} />
+                </button>
                 <button
                   onClick={() => editingId === cp.id ? cancelEdit() : startEdit(cp)}
                   title="Modifica tappa"
@@ -299,13 +360,23 @@ export default function CheckpointList({ checkpoints, eventId }: { checkpoints: 
                 ? 'Scannerizzare apre il sondaggio di valutazione.'
                 : 'Scannerizzare sblocca automaticamente la tappa successiva.'}
             </p>
-            <button
-              onClick={() => downloadQR(qrCheckpoint)}
-              className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
-            >
-              <Download size={15} />
-              Scarica SVG
-            </button>
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={() => handleRegenerateQr(qrCheckpoint)}
+                disabled={regeneratingId === qrCheckpoint.id}
+                className="flex-1 flex items-center justify-center gap-2 border border-amber-300 text-amber-700 hover:bg-amber-50 disabled:opacity-60 text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+              >
+                {regeneratingId === qrCheckpoint.id ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                Rigenera QR
+              </button>
+              <button
+                onClick={() => downloadQR(qrCheckpoint)}
+                className="flex-1 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+              >
+                <Download size={15} />
+                Scarica SVG
+              </button>
+            </div>
           </div>
         </div>
       )}
