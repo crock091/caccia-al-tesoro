@@ -82,6 +82,7 @@ export interface Message {
   id: string
   group_id: string
   content: string
+  media_url: string | null
   sender: 'group' | 'admin'
   created_at: string
 }
