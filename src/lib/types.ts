@@ -78,6 +78,14 @@ export interface Feedback {
   created_at: string
 }
 
+export interface Message {
+  id: string
+  group_id: string
+  content: string
+  sender: 'group' | 'admin'
+  created_at: string
+}
+
 export interface SurveyQuestion {
   id: string
   order_index: number

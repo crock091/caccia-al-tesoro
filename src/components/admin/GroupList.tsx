@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Copy, Check, QrCode, SkipForward, Loader2, MapPin, ChevronDown, ChevronUp, Trash2, CheckCircle2, Star } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Copy, Check, QrCode, SkipForward, Loader2, MapPin, ChevronDown, ChevronUp, Trash2, CheckCircle2, Star, MessageCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Group, GroupPosition, Feedback, QrScan } from '@/lib/types'
 
@@ -17,6 +17,11 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
   const [advancing, setAdvancing] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const expandedIdRef = useRef<string | null>(null)
+  const groupsRef = useRef<Group[]>(initialGroups)
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({})
+  const [toast, setToast] = useState<{ groupName: string; content: string } | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [progressCache, setProgressCache] = useState<Record<string, ProgressItem[]>>({})
   const [loadingProgress, setLoadingProgress] = useState<string | null>(null)
   const [positions, setPositions] = useState<Record<string, GroupPosition>>({})
@@ -25,7 +30,10 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
   const [surveyLabels, setSurveyLabels] = useState<Record<string, string>>({})
   const supabase = createClient()
 
-  useEffect(() => { setGroups(initialGroups) }, [initialGroups])
+  useEffect(() => {
+    setGroups(initialGroups)
+    groupsRef.current = initialGroups
+  }, [initialGroups])
 
   // Subscription realtime: aggiorna i gruppi quando i partecipanti avanzano o un admin modifica da un altro client
   useEffect(() => {
@@ -52,6 +60,23 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
         { event: 'DELETE', schema: 'public', table: 'groups' },
         (payload) => {
           setGroups(prev => prev.filter(g => g.id !== (payload.old as { id: string }).id))
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          const msg = payload.new as { group_id: string; sender: string; content: string }
+          if (msg.sender !== 'group') return
+          if (expandedIdRef.current !== msg.group_id) {
+            setUnreadCounts(prev => ({ ...prev, [msg.group_id]: (prev[msg.group_id] ?? 0) + 1 }))
+            const grp = groupsRef.current.find(g => g.id === msg.group_id)
+            if (grp) {
+              if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+              setToast({ groupName: grp.name, content: msg.content })
+              toastTimerRef.current = setTimeout(() => setToast(null), 4000)
+            }
+          }
         }
       )
       .subscribe()
@@ -92,8 +117,15 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
   }
 
   async function toggleExpand(groupId: string) {
-    if (expandedId === groupId) { setExpandedId(null); return }
+    if (expandedId === groupId) {
+      setExpandedId(null)
+      expandedIdRef.current = null
+      return
+    }
     setExpandedId(groupId)
+    expandedIdRef.current = groupId
+    // Segna i messaggi come letti
+    setUnreadCounts(prev => ({ ...prev, [groupId]: 0 }))
     if (progressCache[groupId]) return
     setLoadingProgress(groupId)
     const [{ data: prog }, { data: fb }, { data: scans }] = await Promise.all([
@@ -156,6 +188,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
   }
 
   return (
+    <>
     <ul className="flex flex-col gap-3">
       {groups.map(group => {
         const progress = totalCheckpoints > 0
@@ -205,8 +238,11 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
                 <div className="min-w-0">
                   <p className="font-medium text-sm text-gray-900 flex items-center gap-1">
                     {isExpanded ? <ChevronUp size={14} className="text-gray-400 flex-shrink-0" /> : <ChevronDown size={14} className="text-gray-400 flex-shrink-0" />}
-                    {group.name}
-                  </p>
+                    {group.name}                    {(unreadCounts[group.id] ?? 0) > 0 && (
+                      <span className="ml-1 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex-shrink-0">
+                        {unreadCounts[group.id]}
+                      </span>
+                    )}                  </p>
                   <p className="text-xs text-gray-400 font-mono mt-0.5 pl-[18px]">Codice: {group.invite_code}</p>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
@@ -359,5 +395,20 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
         )
       })}
     </ul>
+
+    {/* Toast notifica messaggio gruppo */}
+    {toast && (
+      <div
+        className="fixed bottom-6 right-6 z-50 flex items-start gap-3 px-4 py-3 rounded-2xl shadow-2xl"
+        style={{ background: '#1e293b', border: '1px solid rgba(148,163,184,0.15)', maxWidth: '280px' }}
+      >
+        <MessageCircle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-white">{toast.groupName}</p>
+          <p className="text-xs text-slate-400 truncate">{toast.content}</p>
+        </div>
+      </div>
+    )}
+    </>
   )
 }

@@ -42,17 +42,24 @@ export default async function AdminDashboard() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {events.map((event: Event) => {
             const s = statusLabels[event.status]
+            const topColor = event.status === 'active'
+              ? 'linear-gradient(90deg, #22c55e, #10b981)'
+              : event.status === 'completed'
+              ? 'linear-gradient(90deg, #3b82f6, #6366f1)'
+              : 'linear-gradient(90deg, #d1d5db, #e5e7eb)'
             return (
-              <div key={event.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex flex-col gap-3">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="font-semibold text-gray-900 text-base leading-tight">{event.name}</h2>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${s.color}`}>
+              <div key={event.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow p-5 flex flex-col gap-3 relative overflow-hidden">
+                {/* Top status stripe */}
+                <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ background: topColor }} />
+                <div className="flex items-start justify-between gap-2 mt-1">
+                  <h2 className="font-bold text-gray-900 text-base leading-tight">{event.name}</h2>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${s.color}`}>
                     {s.label}
                   </span>
                 </div>
 
                 {event.description && (
-                  <p className="text-sm text-gray-500 line-clamp-2">{event.description}</p>
+                  <p className="text-sm text-gray-400 line-clamp-2">{event.description}</p>
                 )}
 
                 {event.date && (
@@ -65,7 +72,7 @@ export default async function AdminDashboard() {
                 <div className="flex gap-2 mt-auto pt-2 border-t border-gray-100">
                   <Link
                     href={`/admin/events/${event.id}`}
-                    className="flex-1 text-center text-xs font-medium text-amber-700 hover:text-amber-900 py-1.5 rounded-lg hover:bg-amber-50 transition-colors"
+                    className="flex-1 text-center text-xs font-semibold text-amber-600 hover:text-amber-800 py-1.5 rounded-lg hover:bg-amber-50 transition-colors"
                   >
                     Gestisci
                   </Link>

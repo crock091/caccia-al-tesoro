@@ -9,6 +9,7 @@ import type { Checkpoint, Group, Submission, SurveyQuestion } from '@/lib/types'
 
 const QrScannerModal = dynamic(() => import('@/components/QrScannerModal'), { ssr: false })
 const SurveyForm = dynamic(() => import('@/components/SurveyForm'), { ssr: false })
+const GroupChatWidget = dynamic(() => import('@/components/GroupChatWidget'), { ssr: false })
 
 export default function GamePage({ params }: { params: Promise<{ groupId: string }> }) {
   const [groupId, setGroupId] = useState('')
@@ -335,16 +336,16 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-amber-50">
-        <Loader2 className="animate-spin text-amber-600" size={32} />
+      <main className="min-h-screen flex items-center justify-center bg-slate-900">
+        <Loader2 className="animate-spin text-amber-400" size={32} />
       </main>
     )
   }
 
   if (!group || !checkpoints.length) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-amber-50 p-6 text-center">
-        <p className="text-gray-500">Evento non trovato o non ancora iniziato.</p>
+      <main className="min-h-screen flex items-center justify-center bg-slate-900 p-6 text-center">
+        <p className="text-slate-400">Evento non trovato o non ancora iniziato.</p>
       </main>
     )
   }
@@ -352,13 +353,18 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
   // Evento completato
   if (group.finished) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 flex flex-col items-center justify-center p-6 text-center">
-        <div className="text-6xl mb-4">🎉</div>
-        <h1 className="text-3xl font-bold text-amber-900 mb-2">Complimenti!</h1>
-        <p className="text-amber-700 text-lg mb-1">Hai completato la caccia al tesoro!</p>
-        <p className="text-amber-600 text-sm">Siete arrivati alle {group.finished_at ? new Date(group.finished_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : ''}</p>
+      <main className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+        <div
+          className="w-28 h-28 rounded-3xl flex items-center justify-center mx-auto mb-6 text-6xl"
+          style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', boxShadow: '0 20px 60px rgba(234,88,12,0.45)' }}
+        >
+          🎉
+        </div>
+        <h1 className="text-3xl font-black text-white mb-2">Complimenti!</h1>
+        <p className="text-amber-300 text-lg mb-1">Hai completato la caccia al tesoro!</p>
+        <p className="text-slate-400 text-sm">Siete arrivati alle {group.finished_at ? new Date(group.finished_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : ''}</p>
         <div className="mt-8">
-          <Trophy className="mx-auto text-amber-500" size={64} />
+          <Trophy className="mx-auto text-amber-400" size={64} />
         </div>
       </main>
     )
@@ -368,21 +374,21 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
   const isLastCheckpoint = group.current_checkpoint_index === checkpoints.length - 1
 
   return (
-    <main className="min-h-screen bg-amber-50">
+    <main className="min-h-screen bg-slate-900">
       {/* Header */}
-      <div className="bg-amber-600 text-white px-4 py-3">
+      <div className="text-white px-4 py-3" style={{ background: 'linear-gradient(135deg, #d97706, #ea580c)', boxShadow: '0 4px 20px rgba(234,88,12,0.25)' }}>
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <div>
-            <p className="text-xs opacity-80">Gruppo</p>
+            <p className="text-xs opacity-70">Gruppo</p>
             <p className="font-bold">{group.name}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs opacity-80">Tappa</p>
+            <p className="text-xs opacity-70">Tappa</p>
             <p className="font-bold">{group.current_checkpoint_index + 1} / {checkpoints.length}</p>
           </div>
         </div>
         {/* Progress bar */}
-        <div className="max-w-lg mx-auto mt-2 h-1.5 bg-amber-500 rounded-full overflow-hidden">
+        <div className="max-w-lg mx-auto mt-2 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.25)' }}>
           <div
             className="h-full bg-white rounded-full transition-all"
             style={{ width: `${((group.current_checkpoint_index) / checkpoints.length) * 100}%` }}
@@ -394,28 +400,28 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {/* Messaggio sblocco */}
         {unlockMessage && (
-          <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex gap-3 items-start">
-            <CheckCircle className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+          <div className="rounded-2xl p-4 flex gap-3 items-start" style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)' }}>
+            <CheckCircle className="text-green-400 flex-shrink-0 mt-0.5" size={20} />
             <div>
-              <p className="font-semibold text-green-800 text-sm mb-0.5">Tappa sbloccata!</p>
-              <p className="text-green-700 text-sm">{unlockMessage}</p>
+              <p className="font-semibold text-green-300 text-sm mb-0.5">Tappa sbloccata!</p>
+              <p className="text-green-400 text-sm">{unlockMessage}</p>
               <button onClick={() => setUnlockMessage(null)} className="text-xs text-green-500 mt-1 underline">Chiudi</button>
             </div>
           </div>
         )}
 
         {/* Card tappa corrente */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+        <div className="rounded-3xl p-6" style={{ background: '#1e293b', border: '1px solid rgba(148,163,184,0.12)' }}>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-semibold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ color: '#fbbf24', background: 'rgba(251,191,36,0.15)' }}>
               TAPPA {group.current_checkpoint_index + 1}
             </span>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-3">{currentCp.title}</h2>
+          <h2 className="text-xl font-bold text-slate-100 mb-3">{currentCp.title}</h2>
 
-          <div className="bg-gray-50 rounded-2xl p-4 mb-4">
-            <p className="text-sm font-medium text-gray-500 mb-1">🔍 Indizio</p>
-            <p className="text-gray-800 leading-relaxed">{currentCp.clue}</p>
+          <div className="rounded-2xl p-4 mb-4" style={{ background: 'rgba(148,163,184,0.08)' }}>
+            <p className="text-sm font-medium text-slate-400 mb-1">🔍 Indizio</p>
+            <p className="text-slate-200 leading-relaxed">{currentCp.clue}</p>
           </div>
 
           {currentCp.clue_image_url && (
@@ -428,25 +434,25 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
           {/* GPS indicator */}
           {gpsStatus === 'active' && (
-            <div className="flex items-center gap-1.5 text-xs text-green-600">
+            <div className="flex items-center gap-1.5 text-xs text-green-400">
               <MapPin size={13} />
               <span>Posizione GPS condivisa con l&apos;organizzatore</span>
             </div>
           )}
           {gpsStatus === 'waiting' && (
-            <div className="flex items-center gap-1.5 text-xs text-amber-500">
+            <div className="flex items-center gap-1.5 text-xs text-amber-400">
               <MapPin size={13} />
               <span>In attesa del permesso GPS…</span>
             </div>
           )}
           {gpsStatus === 'denied' && (
-            <div className="flex items-center gap-1.5 text-xs text-red-500">
+            <div className="flex items-center gap-1.5 text-xs text-red-400">
               <MapPin size={13} />
               <span>GPS negato — vai in Impostazioni e consenti la posizione per questa pagina</span>
             </div>
           )}
           {gpsStatus === 'unavailable' && (
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
               <MapPin size={13} />
               <span>GPS non disponibile su questo dispositivo</span>
             </div>
@@ -455,19 +461,19 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {/* Sezione upload media */}
         {currentCp.requires_media && (
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-            <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
-              <Camera size={18} className="text-blue-600" />
+          <div className="rounded-3xl p-6" style={{ background: '#1e293b', border: '1px solid rgba(148,163,184,0.12)' }}>
+            <h3 className="font-semibold text-slate-100 mb-1 flex items-center gap-2">
+              <Camera size={18} className="text-blue-400" />
               Prova richiesta
             </h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-slate-400 mb-4">
               Scatta una foto o registra un video per sbloccare la prossima tappa.
             </p>
 
             {!submission && !qrVerified && (
               <div className="flex flex-col items-center gap-3 py-4 text-center">
-                <QrCode size={40} className="text-gray-300" />
-                <p className="text-sm text-gray-500">
+                <QrCode size={40} className="text-slate-600" />
+                <p className="text-sm text-slate-400">
                   Scansiona il QR della tappa per sbloccare l&apos;upload.
                 </p>
                 <button
@@ -517,19 +523,22 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
             )}
 
             {submission && (
-              <div className={`rounded-2xl p-4 flex items-center gap-3 ${
-                submission.status === 'approved' ? 'bg-green-50 border border-green-200' :
-                submission.status === 'rejected' ? 'bg-red-50 border border-red-200' :
-                'bg-amber-50 border border-amber-200'
-              }`}>
-                {submission.status === 'approved' && <CheckCircle className="text-green-600 flex-shrink-0" size={20} />}
-                {submission.status === 'rejected' && <XCircle className="text-red-600 flex-shrink-0" size={20} />}
-                {submission.status === 'pending' && <Clock className="text-amber-600 flex-shrink-0 animate-pulse" size={20} />}
+              <div
+                className="rounded-2xl p-4 flex items-center gap-3"
+                style={submission.status === 'approved'
+                  ? { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }
+                  : submission.status === 'rejected'
+                  ? { background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }
+                  : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
+              >
+                {submission.status === 'approved' && <CheckCircle className="text-green-400 flex-shrink-0" size={20} />}
+                {submission.status === 'rejected' && <XCircle className="text-red-400 flex-shrink-0" size={20} />}
+                {submission.status === 'pending' && <Clock className="text-amber-400 flex-shrink-0 animate-pulse" size={20} />}
                 <div>
                   <p className={`font-semibold text-sm ${
-                    submission.status === 'approved' ? 'text-green-800' :
-                    submission.status === 'rejected' ? 'text-red-800' :
-                    'text-amber-800'
+                    submission.status === 'approved' ? 'text-green-300' :
+                    submission.status === 'rejected' ? 'text-red-300' :
+                    'text-amber-300'
                   }`}>
                     {submission.status === 'approved' && (currentCp.has_survey ? '✓ Approvato! Compila il sondaggio qui sotto.' : '✓ Approvato! Tappa sbloccata.')}
                     {submission.status === 'rejected' && 'Rifiutato. Riprova!'}
@@ -557,10 +566,10 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {/* Tappa con sondaggio ma QR non ancora scansionato (solo se non richiede media: in quel caso il QR prompt è già nella sezione upload) */}
         {currentCp.has_survey && !currentCp.requires_media && !qrVerified && (
-          <div className="bg-white rounded-3xl shadow-sm border border-violet-100 p-6 flex flex-col items-center gap-3 text-center">
+          <div className="rounded-3xl p-6 flex flex-col items-center gap-3 text-center" style={{ background: '#1e293b', border: '1px solid rgba(167,139,250,0.2)' }}>
             <div className="text-4xl">🌟</div>
-            <p className="font-semibold text-gray-900">Sei all&apos;ultima tappa!</p>
-            <p className="text-sm text-gray-500">
+            <p className="font-semibold text-slate-100">Sei all&apos;ultima tappa!</p>
+            <p className="text-sm text-slate-400">
               Scansiona il QR per accedere al sondaggio di fine giornata.
             </p>
             <button
@@ -587,12 +596,12 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {/* Tappa QR-only (nessun media, nessun sondaggio): richiede la scansione del QR */}
         {!currentCp.requires_media && !currentCp.has_survey && (
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex flex-col items-center gap-3 text-center">
-            <QrCode size={42} className="text-amber-500" />
-            <p className="font-semibold text-gray-900">
+          <div className="rounded-3xl p-6 flex flex-col items-center gap-3 text-center" style={{ background: '#1e293b', border: '1px solid rgba(148,163,184,0.12)' }}>
+            <QrCode size={42} className="text-amber-400" />
+            <p className="font-semibold text-slate-100">
               {isLastCheckpoint ? '🏁 Scansiona il QR per concludere!' : 'Scansiona il QR per avanzare'}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-400">
               Inquadra il codice QR della tappa con la fotocamera.
             </p>
             <button
@@ -616,6 +625,8 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
             )}
           </div>
         )}
+
+        {groupId && <GroupChatWidget groupId={groupId} />}
       </div>
 
       {/* Modal scanner QR */}
