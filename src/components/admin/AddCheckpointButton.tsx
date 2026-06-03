@@ -13,6 +13,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
     title: '',
     clue: '',
     unlock_message: '',
+    requires_qr: true,
     requires_media: false,
     has_survey: false,
     latitude: '',
@@ -32,6 +33,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
       title: form.title,
       clue: form.clue,
       unlock_message: form.unlock_message || null,
+      requires_qr: form.requires_qr,
       requires_media: form.requires_media,
       has_survey: form.has_survey,
       latitude: form.latitude ? parseFloat(form.latitude) : null,
@@ -42,7 +44,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
 
     setLoading(false)
     setOpen(false)
-    setForm({ title: '', clue: '', unlock_message: '', requires_media: false, has_survey: false, latitude: '', longitude: '', geo_radius_meters: '200' })
+    setForm({ title: '', clue: '', unlock_message: '', requires_qr: true, requires_media: false, has_survey: false, latitude: '', longitude: '', geo_radius_meters: '200' })
     router.refresh()
   }
 
@@ -50,7 +52,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2.5 py-1.5 rounded-lg transition-colors"
+        className="flex items-center gap-1 text-xs font-medium text-green-800 hover:text-green-900 bg-green-50 hover:bg-green-100 px-2.5 py-1.5 rounded-lg transition-colors"
       >
         <Plus size={14} />
         Aggiungi tappa
@@ -59,8 +61,8 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col gap-3">
-      <h3 className="font-medium text-sm text-amber-900">Nuova tappa #{nextIndex + 1}</h3>
+    <form onSubmit={handleSubmit} className="w-full mt-4 bg-green-50 border border-green-300 rounded-xl p-4 flex flex-col gap-3">
+      <h3 className="font-medium text-sm text-green-900">Nuova tappa #{nextIndex + 1}</h3>
 
       <div>
         <label className="block text-xs font-medium text-gray-600 mb-1">Titolo *</label>
@@ -69,7 +71,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
           required
           value={form.title}
           onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
           placeholder="Es. Cantina storica"
         />
       </div>
@@ -81,7 +83,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
           value={form.clue}
           onChange={e => setForm(f => ({ ...f, clue: e.target.value }))}
           rows={3}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
           placeholder="Dove trovare la tappa successiva..."
         />
       </div>
@@ -92,7 +94,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
           value={form.unlock_message}
           onChange={e => setForm(f => ({ ...f, unlock_message: e.target.value }))}
           rows={2}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
           placeholder="Mostrato ai gruppi quando sbloccano questa tappa"
         />
       </div>
@@ -105,7 +107,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
             step="any"
             value={form.latitude}
             onChange={e => setForm(f => ({ ...f, latitude: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
             placeholder="44.6936"
           />
         </div>
@@ -116,7 +118,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
             step="any"
             value={form.longitude}
             onChange={e => setForm(f => ({ ...f, longitude: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
             placeholder="8.0359"
           />
         </div>
@@ -125,10 +127,24 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
+          id="requires_qr"
+          checked={form.requires_qr}
+          onChange={e => setForm(f => ({ ...f, requires_qr: e.target.checked }))}
+          className="accent-cyan-600"
+        />
+        <label htmlFor="requires_qr" className="text-sm text-gray-700">
+          <span className="font-medium text-cyan-700">Richiede scansione QR</span>
+          <span className="text-gray-400 text-xs ml-1">(se disattivato, sblocco solo tramite approvazione media)</span>
+        </label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
           id="requires_media"
           checked={form.requires_media}
           onChange={e => setForm(f => ({ ...f, requires_media: e.target.checked }))}
-          className="accent-amber-600"
+          className="accent-green-700"
         />
         <label htmlFor="requires_media" className="text-sm text-gray-700">
           Richiede upload foto/video per sbloccare
@@ -160,7 +176,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
         >
           {loading && <Loader2 size={14} className="animate-spin" />}
           Salva tappa

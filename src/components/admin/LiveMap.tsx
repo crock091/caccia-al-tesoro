@@ -91,7 +91,7 @@ export default function LiveMap({ events }: LiveMapProps) {
           <select
             value={selectedEventId}
             onChange={e => setSelectedEventId(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
           >
             {events.map(ev => (
               <option key={ev.id} value={ev.id}>{ev.name}</option>
@@ -146,7 +146,7 @@ export default function LiveMap({ events }: LiveMapProps) {
                   key={group.id}
                   center={[pos.latitude, pos.longitude]}
                   radius={11}
-                  pathOptions={{ fillColor: group.finished ? '#22c55e' : '#d97706', color: 'white', weight: 2, fillOpacity: 1 }}
+                  pathOptions={{ fillColor: group.finished ? '#22c55e' : '#206134', color: 'white', weight: 2, fillOpacity: 1 }}
                 >
                   <Popup>
                     <strong>{group.name}</strong><br />
@@ -171,7 +171,7 @@ export default function LiveMap({ events }: LiveMapProps) {
           Tappe ({cpsWithCoords.length}/{checkpoints.length} con GPS)
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="inline-block w-3.5 h-3.5 rounded-full bg-[#d97706] border-2 border-white shadow" />
+          <span className="inline-block w-3.5 h-3.5 rounded-full bg-[#206134] border-2 border-white shadow" />
           Gruppi in gioco
         </span>
         <span className="flex items-center gap-1.5">

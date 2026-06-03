@@ -115,7 +115,7 @@ export default function PushSubscribeButton() {
       onClick={subscribe}
       disabled={busy}
       title="Attiva notifiche push"
-      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-amber-600 transition-colors disabled:opacity-50"
+      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-green-700 transition-colors disabled:opacity-50"
     >
       {busy ? <Loader2 size={14} className="animate-spin" /> : <Bell size={14} />}
       <span className="hidden sm:inline">Notifiche</span>

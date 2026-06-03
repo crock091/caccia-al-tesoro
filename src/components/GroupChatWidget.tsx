@@ -29,8 +29,8 @@ export default function GroupChatWidget({ groupId }: GroupChatWidgetProps) {
         aria-label="Chat con l'organizzatore"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center transition-transform active:scale-95"
         style={{
-          background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
-          boxShadow: '0 8px 30px rgba(234,88,12,0.45)',
+          background: 'linear-gradient(135deg, #6DAB3C, #206134)',
+          boxShadow: '0 8px 30px rgba(109,171,60,0.45)',
         }}
       >
         {open ? (
@@ -59,25 +59,28 @@ export default function GroupChatWidget({ groupId }: GroupChatWidgetProps) {
             right: '1.5rem',
             width: 'min(340px, calc(100vw - 2rem))',
             height: 'min(480px, calc(100vh - 8rem))',
-            background: 'rgba(15,23,42,0.97)',
-            border: '1px solid rgba(148,163,184,0.15)',
-            borderRadius: '1rem',
-            boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
-            backdropFilter: 'blur(16px)',
+            background: 'rgba(11,15,25,0.97)',
+            border: '1px solid rgba(109,171,60,0.2)',
+            borderRadius: '1.25rem',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(109,171,60,0.08)',
+            backdropFilter: 'blur(20px)',
             overflow: 'hidden',
+            animation: 'slideUp 0.3s cubic-bezier(0.16,1,0.3,1) both',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3 flex-shrink-0"
-            style={{ borderBottom: '1px solid rgba(148,163,184,0.1)' }}
+            style={{ borderBottom: '1px solid rgba(109,171,60,0.15)', background: 'rgba(109,171,60,0.06)' }}
           >
             <div className="flex items-center gap-2">
-              <MessageCircle size={15} className="text-amber-400" />
-              <span className="text-sm font-semibold text-slate-200">Chat con l&apos;organizzatore</span>
+              <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)' }}>
+                <MessageCircle size={13} className="text-white" />
+              </div>
+              <span className="text-sm font-semibold text-white">Chat con l&apos;organizzatore</span>
             </div>
-            <button onClick={closeChat} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
-              <X size={15} className="text-slate-400" />
+            <button onClick={closeChat} className="p-1.5 rounded-lg transition-colors" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <X size={15} />
             </button>
           </div>
 

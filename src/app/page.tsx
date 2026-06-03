@@ -1,83 +1,84 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Camera, Map, ChevronRight } from 'lucide-react'
+import PoweredByFooter from '@/components/PoweredByFooter'
 
 export default function HomePage() {
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden p-6"
-      style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 30%, #9a3412 65%, #c2410c 100%)' }}
+      className="min-h-screen flex flex-col relative overflow-hidden"
+      style={{
+        backgroundColor: '#0a0b0d',
+        backgroundImage: `url('/game-bg.png')`,
+        backgroundSize: 'auto 100vh',
+        backgroundPosition: 'center top',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
-      {/* Orbs decorativi */}
+      {/* Gradiente che sbiadisce la parte bassa */}
       <div
-        className="absolute top-16 left-4 w-72 h-72 rounded-full opacity-30 blur-3xl pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #f59e0b, transparent)' }}
-      />
-      <div
-        className="absolute bottom-16 right-4 w-80 h-80 rounded-full opacity-20 blur-3xl pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #ef4444, transparent)' }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(5,10,15,0.45) 0%, rgba(5,10,15,0.75) 45%, rgba(5,10,15,0.97) 72%, rgba(5,10,15,1) 85%)' }}
       />
 
-      <div className="relative z-10 flex flex-col items-center text-center w-full max-w-sm">
-        {/* Logo badge */}
-        <div
-          className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6 text-5xl"
-          style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', boxShadow: '0 20px 60px rgba(234,88,12,0.45)' }}
-        >
-          🏆
+      {/* Contenuto in basso */}
+      <div className="relative z-10 mt-auto px-6 pb-4 pt-4 w-full max-w-sm mx-auto flex flex-col items-center text-center">
+        <div className="bg-white rounded-2xl p-3 mb-4 shadow-lg">
+          <Image src="/Logo-sito-poll.avif" alt="Logo" width={120} height={120} />
         </div>
-
-        <h1 className="text-5xl font-black text-white tracking-tight mb-2 leading-none">
-          Caccia al<br />
-          <span style={{ background: 'linear-gradient(90deg, #fbbf24, #fb923c)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Tesoro
-          </span>
+        <h1
+          className="text-4xl font-black tracking-tight mb-1 leading-none"
+          style={{ color: '#6DAB3C', textShadow: '0 0 24px rgba(109,171,60,0.35)' }}
+        >
+          Caccia al Tesoro
         </h1>
-        <p className="text-white/50 text-xs font-semibold tracking-widest uppercase mb-12">Langhe &amp; Roero</p>
+        <p className="text-xs font-semibold tracking-widest uppercase mb-8" style={{ color: 'rgba(255,255,255,0.3)' }}>Langhe &amp; Roero</p>
 
         {/* CTA buttons */}
         <div className="flex flex-col gap-3 w-full">
           <Link
             href="/join"
-            className="group flex items-center justify-between text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', boxShadow: '0 8px 32px rgba(234,88,12,0.40)' }}
+            className="group flex items-center justify-between font-bold py-4 px-6 rounded-full text-base transition-all active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#0a0b0d', boxShadow: '0 8px 28px rgba(109,171,60,0.35)' }}
           >
             <span className="flex items-center gap-3">
               <span className="text-xl">🗺️</span>
               Partecipa a un evento
             </span>
-            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            <ChevronRight size={20} />
           </Link>
 
           <Link
             href="/admin/login"
-            className="group flex items-center justify-between font-semibold py-4 px-6 rounded-2xl text-lg transition-all active:scale-95"
-            style={{ background: 'rgba(255,255,255,0.09)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.88)' }}
+            className="group flex items-center justify-between font-semibold py-4 px-6 rounded-full text-base transition-all active:scale-95"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.75)' }}
           >
             <span className="flex items-center gap-3">
               <span className="text-xl">⚙️</span>
               Area organizzatore
             </span>
-            <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform opacity-60" />
+            <ChevronRight size={20} className="opacity-50" />
           </Link>
         </div>
 
         {/* Feature pills */}
-        <div className="mt-12 flex gap-3">
+        <div className="mt-8 flex gap-3">
           {[
-            { icon: <MapPin size={18} className="text-amber-300" />, label: 'GPS live' },
-            { icon: <Camera size={18} className="text-amber-300" />, label: 'Prove foto' },
-            { icon: <Map size={18} className="text-amber-300" />, label: 'Mappa' },
+            { icon: <MapPin size={16} style={{ color: '#6DAB3C' }} />, label: 'GPS live' },
+            { icon: <Camera size={16} style={{ color: '#6DAB3C' }} />, label: 'Prove foto' },
+            { icon: <Map size={16} style={{ color: '#6DAB3C' }} />, label: 'Mappa' },
           ].map(f => (
             <div
               key={f.label}
               className="flex flex-col items-center gap-1.5 px-4 py-3 rounded-2xl"
-              style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)' }}
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               {f.icon}
-              <p className="text-xs text-white/55 font-medium">{f.label}</p>
+              <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>{f.label}</p>
             </div>
           ))}
         </div>
+        <PoweredByFooter dark />
       </div>
     </main>
   )

@@ -145,13 +145,13 @@ export default function GroupChat({ groupId, sender, onUnread, hideHeader = fals
   const isBusy = sending || uploading
 
   const containerStyle = isGroup
-    ? { background: 'rgba(148,163,184,0.06)', border: '1px solid rgba(148,163,184,0.12)', borderRadius: '1rem' }
+    ? { background: 'transparent', border: 'none', borderRadius: 0 }
     : { background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem' }
   const inputAreaStyle = isGroup
-    ? { background: 'rgba(148,163,184,0.08)', borderTop: '1px solid rgba(148,163,184,0.12)' }
+    ? { background: 'rgba(109,171,60,0.05)', borderTop: '1px solid rgba(109,171,60,0.15)' }
     : { background: '#fff', borderTop: '1px solid #e2e8f0' }
   const inputStyle = isGroup
-    ? { background: 'rgba(148,163,184,0.1)', border: '1px solid rgba(148,163,184,0.2)', color: '#f1f5f9', borderRadius: '0.625rem' }
+    ? { background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(109,171,60,0.2)', color: '#f1f5f9', borderRadius: '0.75rem' }
     : { background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#1e293b', borderRadius: '0.625rem' }
 
   function renderMedia(url: string, isMine: boolean) {
@@ -235,7 +235,7 @@ export default function GroupChat({ groupId, sender, onUnread, hideHeader = fals
                       ? { background: 'transparent', padding: 0 }
                       : isMine
                         ? isGroup
-                          ? { background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: '#fff', padding: '6px 12px' }
+                          ? { background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#fff', padding: '6px 12px' }
                           : { background: '#3b82f6', color: '#fff', padding: '6px 12px' }
                         : isGroup
                           ? { background: 'rgba(148,163,184,0.15)', color: '#e2e8f0', padding: '6px 12px' }
@@ -318,7 +318,7 @@ export default function GroupChat({ groupId, sender, onUnread, hideHeader = fals
           onClick={sendMessage}
           disabled={(!input.trim() && !mediaPreview) || isBusy}
           className="flex-shrink-0 p-1.5 rounded-lg transition-all disabled:opacity-40"
-          style={isGroup ? { background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: '#fff' } : { background: '#3b82f6', color: '#fff' }}
+          style={isGroup ? { background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#fff', borderRadius: '8px', padding: '6px' } : { background: '#3b82f6', color: '#fff', borderRadius: '8px', padding: '6px' }}
         >
           {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
         </button>

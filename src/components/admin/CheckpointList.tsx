@@ -27,6 +27,7 @@ interface EditForm {
   title: string
   clue: string
   unlock_message: string
+  requires_qr: boolean
   requires_media: boolean
   has_survey: boolean
   latitude: string
@@ -62,6 +63,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
       title: cp.title,
       clue: cp.clue,
       unlock_message: cp.unlock_message ?? '',
+      requires_qr: cp.requires_qr ?? true,
       requires_media: cp.requires_media,
       has_survey: cp.has_survey ?? false,
       latitude: cp.latitude?.toString() ?? '',
@@ -82,6 +84,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
       title: editForm.title,
       clue: editForm.clue,
       unlock_message: editForm.unlock_message || null,
+      requires_qr: editForm.requires_qr,
       requires_media: editForm.requires_media,
       has_survey: editForm.has_survey,
       latitude: editForm.latitude ? parseCoord(editForm.latitude) : null,
@@ -163,10 +166,10 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
     <>
       <ol className="flex flex-col gap-3">
         {checkpoints.map((cp, i) => (
-          <li key={cp.id} className="border border-gray-100 rounded-xl overflow-hidden hover:border-amber-200 transition-colors">
+          <li key={cp.id} className="border border-gray-100 rounded-xl overflow-hidden hover:border-green-300 transition-colors">
             {/* Header tappa */}
             <div className="flex items-start gap-3 p-3">
-              <div className="flex-shrink-0 w-7 h-7 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-xs font-bold">
+              <div className="flex-shrink-0 w-7 h-7 bg-green-100 text-green-800 rounded-full flex items-center justify-center text-xs font-bold">
                 {i + 1}
               </div>
               <div className="flex-1 min-w-0">
@@ -177,6 +180,9 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                     <span className="flex items-center gap-1 text-xs text-green-600">
                       <MapPin size={11} />GPS
                     </span>
+                  )}
+                  {!(cp.requires_qr ?? true) && (
+                    <span className="text-xs text-cyan-600 font-medium">No QR</span>
                   )}
                   {cp.requires_media && (
                     <span className="flex items-center gap-1 text-xs text-blue-600">
@@ -193,7 +199,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                   onClick={() => moveCheckpoint(cp, 'up')}
                   disabled={i === 0 || movingId === cp.id}
                   title="Sposta su"
-                  className="text-gray-300 hover:text-amber-500 transition-colors disabled:opacity-20"
+                  className="text-gray-300 hover:text-green-600 transition-colors disabled:opacity-20"
                 >
                   <ChevronUp size={15} />
                 </button>
@@ -201,21 +207,21 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                   onClick={() => moveCheckpoint(cp, 'down')}
                   disabled={i === checkpoints.length - 1 || movingId === cp.id}
                   title="Sposta giù"
-                  className="text-gray-300 hover:text-amber-500 transition-colors disabled:opacity-20"
+                  className="text-gray-300 hover:text-green-600 transition-colors disabled:opacity-20"
                 >
                   <ChevronDown size={15} />
                 </button>
                 <button
                   onClick={() => editingId === cp.id ? cancelEdit() : startEdit(cp)}
                   title="Modifica tappa"
-                  className={`transition-colors ${editingId === cp.id ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'}`}
+                  className={`transition-colors ${editingId === cp.id ? 'text-green-600' : 'text-gray-300 hover:text-green-600'}`}
                 >
                   <Pencil size={15} />
                 </button>
                 <button
                   onClick={() => setQrCheckpoint(cp)}
                   title="Mostra QR"
-                  className="text-gray-300 hover:text-amber-500 transition-colors"
+                  className="text-gray-300 hover:text-green-600 transition-colors"
                 >
                   <QrCode size={15} />
                 </button>
@@ -231,7 +237,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
 
             {/* Form modifica inline */}
             {editingId === cp.id && editForm && (
-              <div className="border-t border-amber-100 bg-amber-50 px-4 py-4 flex flex-col gap-3">
+              <div className="border-t border-green-200 bg-green-50 px-4 py-4 flex flex-col gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Titolo *</label>
                   <input
@@ -239,7 +245,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                     required
                     value={editForm.title}
                     onChange={e => setEditForm(f => f ? { ...f, title: e.target.value } : f)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                   />
                 </div>
                 <div>
@@ -249,7 +255,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                     value={editForm.clue}
                     onChange={e => setEditForm(f => f ? { ...f, clue: e.target.value } : f)}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
                   />
                 </div>
                 <div>
@@ -258,7 +264,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                     value={editForm.unlock_message}
                     onChange={e => setEditForm(f => f ? { ...f, unlock_message: e.target.value } : f)}
                     rows={2}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
                     placeholder="Mostrato ai gruppi quando sbloccano questa tappa"
                   />
                 </div>
@@ -270,7 +276,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                       inputMode="decimal"
                       value={editForm.latitude}
                       onChange={e => setEditForm(f => f ? { ...f, latitude: e.target.value } : f)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                       placeholder={"44.6948 o 44\u00b041'41.3\"N"}
                     />
                   </div>
@@ -281,7 +287,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                       inputMode="decimal"
                       value={editForm.longitude}
                       onChange={e => setEditForm(f => f ? { ...f, longitude: e.target.value } : f)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                       placeholder={"8.0343 o 8\u00b002'03.4\"E"}
                     />
                   </div>
@@ -289,10 +295,23 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    id={`edit-requires-qr-${cp.id}`}
+                    checked={editForm.requires_qr}
+                    onChange={e => setEditForm(f => f ? { ...f, requires_qr: e.target.checked } : f)}
+                    className="accent-cyan-600"
+                  />
+                  <label htmlFor={`edit-requires-qr-${cp.id}`} className="text-sm text-gray-700">
+                    <span className="font-medium text-cyan-700">Richiede scansione QR</span>
+                    <span className="text-gray-400 text-xs ml-1">(se disattivato, sblocco tramite approvazione media)</span>
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
                     id={`edit-requires-media-${cp.id}`}
                     checked={editForm.requires_media}
                     onChange={e => setEditForm(f => f ? { ...f, requires_media: e.target.checked } : f)}
-                    className="accent-amber-600"
+                    className="accent-green-700"
                   />
                   <label htmlFor={`edit-requires-media-${cp.id}`} className="text-sm text-gray-700">
                     Richiede upload foto/video per sbloccare
@@ -323,7 +342,7 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                     type="button"
                     onClick={() => handleSave(cp)}
                     disabled={savingId === cp.id}
-                    className="flex-1 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
                   >
                     {savingId === cp.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
                     Salva
@@ -364,14 +383,14 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
               <button
                 onClick={() => handleRegenerateQr(qrCheckpoint)}
                 disabled={regeneratingId === qrCheckpoint.id}
-                className="flex-1 flex items-center justify-center gap-2 border border-amber-300 text-amber-700 hover:bg-amber-50 disabled:opacity-60 text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 border border-green-400 text-green-800 hover:bg-green-50 disabled:opacity-60 text-sm font-medium px-3 py-2 rounded-xl transition-colors"
               >
                 {regeneratingId === qrCheckpoint.id ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                 Rigenera QR
               </button>
               <button
                 onClick={() => downloadQR(qrCheckpoint)}
-                className="flex-1 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium px-3 py-2 rounded-xl transition-colors"
               >
                 <Download size={15} />
                 Scarica SVG

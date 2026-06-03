@@ -44,7 +44,32 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
         { event: 'UPDATE', schema: 'public', table: 'groups' },
         (payload) => {
           if ((payload.new as Group).event_id !== eventId) return
-          setGroups(prev => prev.map(g => g.id === (payload.new as Group).id ? payload.new as Group : g))
+          const updatedGroup = payload.new as Group
+          setGroups(prev => prev.map(g => g.id === updatedGroup.id ? updatedGroup : g))
+          // Invalida la cache del progresso: il gruppo ha avanzato di tappa
+          setProgressCache(prev => {
+            if (!prev[updatedGroup.id]) return prev
+            const next = { ...prev }
+            delete next[updatedGroup.id]
+            return next
+          })
+          // Se il gruppo è attualmente espanso, ricarica il progresso subito
+          if (expandedIdRef.current === updatedGroup.id) {
+            setLoadingProgress(updatedGroup.id)
+            Promise.all([
+              supabase.from('group_progress').select('checkpoint_id, completed_at, checkpoints(title, order_index)').eq('group_id', updatedGroup.id),
+              supabase.from('feedback').select('*').eq('group_id', updatedGroup.id).maybeSingle(),
+              supabase.from('qr_scans').select('*').eq('group_id', updatedGroup.id),
+            ]).then(([{ data: prog }, { data: fb }, { data: scans }]) => {
+              const sorted = ((prog ?? []) as unknown as ProgressItem[]).sort((a, b) => a.checkpoints.order_index - b.checkpoints.order_index)
+              const scansMap: Record<string, QrScan> = {}
+              ;(scans ?? []).forEach((s: QrScan) => { scansMap[s.checkpoint_id] = s })
+              setProgressCache(prev => ({ ...prev, [updatedGroup.id]: sorted }))
+              setFeedbackCache(prev => ({ ...prev, [updatedGroup.id]: fb ?? null }))
+              setQrScansCache(prev => ({ ...prev, [updatedGroup.id]: scansMap }))
+              setLoadingProgress(null)
+            })
+          }
         }
       )
       .on(
@@ -255,7 +280,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
                     <button
                       onClick={e => handleManualAdvance(e, group)}
                       disabled={advancing === group.id}
-                      className="p-1.5 text-gray-400 hover:text-amber-600 transition-colors rounded disabled:opacity-50"
+                      className="p-1.5 text-gray-400 hover:text-green-700 transition-colors rounded disabled:opacity-50"
                       title="Sblocca manualmente"
                     >
                       {advancing === group.id ? <Loader2 size={14} className="animate-spin" /> : <SkipForward size={14} />}
@@ -286,7 +311,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
                     className={`h-full rounded-full transition-all ${
                       group.finished ? 'bg-green-500' :
                       group.qr_issue_reported ? 'bg-red-400' :
-                      'bg-amber-500'
+                      'bg-green-500'
                     }`}
                     style={{ width: `${group.finished ? 100 : progress}%` }}
                   />
@@ -358,9 +383,9 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
                     ? (keys.reduce((s, k) => s + (fb.answers[k] ?? 0), 0) / keys.length).toFixed(1)
                     : '—'
                   return (
-                    <div className="mt-3 pt-3 border-t border-violet-100">
-                      <p className="text-xs font-semibold text-violet-700 mb-2 flex items-center gap-1">
-                        <Star size={12} className="fill-violet-500 text-violet-500" />
+                    <div className="mt-3 pt-3 border-t border-green-100">
+                      <p className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1">
+                        <Star size={12} className="fill-green-500 text-green-500" />
                         Valutazione — media {avg}/5
                       </p>
                       <div className="grid grid-cols-2 gap-x-3 gap-y-1">
@@ -370,7 +395,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
                             <span className="flex gap-0.5 ml-1 flex-shrink-0">
                               {[1,2,3,4,5].map(s => (
                                 <Star key={s} size={10}
-                                  className={s <= (fb.answers[k] ?? 0) ? 'fill-amber-400 text-amber-400' : 'fill-gray-100 text-gray-200'}
+                                  className={s <= (fb.answers[k] ?? 0) ? 'fill-green-500 text-green-500' : 'fill-gray-100 text-gray-200'}
                                 />
                               ))}
                             </span>
@@ -378,7 +403,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
                         ))}
                       </div>
                       {fb.message && (
-                        <div className="mt-2 bg-violet-50 rounded-lg p-2">
+                        <div className="mt-2 bg-green-50 rounded-lg p-2">
                           <p className="text-xs text-gray-500 mb-0.5 font-medium">Commento:</p>
                           <p className="text-xs text-gray-700 whitespace-pre-wrap">{fb.message}</p>
                         </div>
@@ -402,7 +427,7 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
         className="fixed bottom-6 right-6 z-50 flex items-start gap-3 px-4 py-3 rounded-2xl shadow-2xl"
         style={{ background: '#1e293b', border: '1px solid rgba(148,163,184,0.15)', maxWidth: '280px' }}
       >
-        <MessageCircle size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+        <MessageCircle size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
         <div className="min-w-0">
           <p className="text-xs font-semibold text-white">{toast.groupName}</p>
           <p className="text-xs text-slate-400 truncate">{toast.content}</p>

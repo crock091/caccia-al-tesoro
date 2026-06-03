@@ -41,7 +41,7 @@ export default function ToggleEventStatusButton({ event }: { event: Event }) {
     <button
       onClick={handleToggle}
       disabled={loading}
-      className="p-1.5 text-gray-400 hover:text-amber-600 transition-colors rounded-lg hover:bg-amber-50 disabled:opacity-50"
+      className="p-1.5 text-gray-400 hover:text-green-700 transition-colors rounded-lg hover:bg-green-50 disabled:opacity-50"
       title={statusTitles[event.status]}
     >
       {loading ? <Loader2 size={15} className="animate-spin" /> : statusIcons[event.status]}

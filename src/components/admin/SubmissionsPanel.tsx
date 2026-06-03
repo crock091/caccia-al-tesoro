@@ -110,7 +110,7 @@ export default function SubmissionsPanel({ eventId }: { eventId: string }) {
   return (
     <div className="flex flex-col gap-4">
       {submissions.map(sub => (
-        <div key={sub.id} className="border border-amber-200 bg-amber-50 rounded-xl p-4 flex gap-4">
+        <div key={sub.id} className="border border-green-300 bg-green-50 rounded-xl p-4 flex gap-4">
           <div className="flex-shrink-0">
             {sub.media_type === 'image' ? (
               <a href={sub.media_url} target="_blank" rel="noopener noreferrer">

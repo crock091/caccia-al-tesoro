@@ -39,7 +39,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
             size={28}
             className={`transition-colors ${
               star <= (hovered || value)
-                ? 'fill-amber-400 text-amber-400'
+                ? 'fill-green-500 text-green-500'
                 : 'fill-gray-100 text-gray-300'
             }`}
           />
@@ -74,12 +74,12 @@ export default function SurveyForm({ questions, onSubmit }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-violet-100 overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-sm border border-green-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-violet-600 to-violet-500 px-6 py-5 text-white">
+      <div className="px-6 py-5 text-white" style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)' }}>
         <div className="text-2xl mb-1">🌟</div>
         <h2 className="text-lg font-bold">Valutazione della giornata</h2>
-        <p className="text-violet-200 text-sm mt-0.5">
+        <p className="text-green-100 text-sm mt-0.5">
           Aiutaci a migliorare — rispondi a 10 brevi domande!
         </p>
       </div>
@@ -89,7 +89,7 @@ export default function SurveyForm({ questions, onSubmit }: Props) {
         {QUESTIONS.map((q, i) => (
           <div key={q.id}>
             <p className="text-sm font-medium text-gray-800 mb-2">
-              <span className="text-violet-500 font-bold mr-1.5">{i + 1}.</span>
+              <span className="text-green-600 font-bold mr-1.5">{i + 1}.</span>
               {q.text}
             </p>
             <StarRating
@@ -110,7 +110,7 @@ export default function SurveyForm({ questions, onSubmit }: Props) {
             onChange={e => setMessage(e.target.value)}
             rows={4}
             maxLength={1000}
-            className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none"
+            className="w-full border border-gray-200 rounded-2xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
             placeholder="Scrivi qui qualsiasi commento, suggerimento o feedback…"
           />
           <p className="text-xs text-gray-300 text-right mt-0.5">{message.length}/1000</p>
@@ -120,7 +120,7 @@ export default function SurveyForm({ questions, onSubmit }: Props) {
         <div className="flex items-center gap-3">
           <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-violet-500 rounded-full transition-all"
+              className="h-full bg-green-500 rounded-full transition-all"
               style={{ width: `${(answeredCount / QUESTIONS.length) * 100}%` }}
             />
           </div>
@@ -134,7 +134,8 @@ export default function SurveyForm({ questions, onSubmit }: Props) {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold py-4 rounded-2xl transition-colors text-base"
+          className="w-full flex items-center justify-center gap-2 disabled:opacity-60 text-white font-bold py-4 rounded-2xl transition-colors text-base"
+          style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)' }}
         >
           {submitting ? (
             <><Loader2 size={18} className="animate-spin" /> Invio in corso…</>

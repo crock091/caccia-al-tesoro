@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Trophy, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import PoweredByFooter from '@/components/PoweredByFooter'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -31,56 +33,72 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 w-full max-w-sm p-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-amber-100 rounded-2xl mb-4">
-            <Trophy className="text-amber-600" size={28} />
+    <main
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundColor: '#f0f4f0',
+        backgroundImage: "url('/immagine-desktop.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="absolute inset-0" style={{ background: 'rgba(240,244,240,0.20)', pointerEvents: 'none' }} />
+      <div className="relative z-10 w-full max-w-sm">
+        <div className="text-center mb-6">
+          <div className="bg-white rounded-2xl p-3 shadow-lg inline-block mb-4">
+            <Image src="/Logo-sito-poll.avif" alt="Logo" width={100} height={100} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Area organizzatore</h1>
-          <p className="text-gray-500 text-sm mt-1">Accedi per gestire gli eventi</p>
+          <p className="text-sm mt-1 text-gray-500">Accedi per gestire gli eventi</p>
         </div>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              placeholder="organizzatore@email.it"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-            />
-          </div>
+        <div className="rounded-2xl p-8 bg-white" style={{ border: '1px solid rgba(109,171,60,0.25)', boxShadow: '0 4px 32px rgba(0,0,0,0.10)' }}>
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'rgba(109,171,60,0.9)' }}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                className="w-full rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2"
+                style={{ border: '1px solid rgba(109,171,60,0.35)' }}
+                placeholder="organizzatore@email.it"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1" style={{ color: 'rgba(109,171,60,0.9)' }}>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                className="w-full rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2"
+                style={{ border: '1px solid rgba(109,171,60,0.35)' }}
+              />
+            </div>
 
-          {error && (
-            <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
+            {error && (
+              <p className="text-sm rounded-lg px-3 py-2" style={{ color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
+                {error}
+              </p>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors mt-2"
-          >
-            {loading && <Loader2 size={16} className="animate-spin" />}
-            Accedi
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center justify-center gap-2 font-semibold py-2.5 rounded-lg transition-opacity disabled:opacity-60 mt-2"
+              style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#fff' }}
+            >
+              {loading && <Loader2 size={16} className="animate-spin" />}
+              Accedi
+            </button>
+          </form>
+        </div>
+        <PoweredByFooter />
       </div>
     </main>
   )

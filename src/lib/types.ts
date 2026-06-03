@@ -23,6 +23,7 @@ export interface Checkpoint {
   longitude: number | null
   requires_media: boolean
   has_survey: boolean
+  requires_qr: boolean
   geo_radius_meters: number
   qr_token: string
   created_at: string

@@ -70,7 +70,7 @@ export default function AdminChatWidget() {
         onClick={toggleOpen}
         aria-label="Chat gruppi"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-95"
-        style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', boxShadow: '0 8px 30px rgba(234,88,12,0.4)' }}
+        style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', boxShadow: '0 8px 30px rgba(109,171,60,0.4)' }}
       >
         {open ? (
           <X size={22} className="text-white" />
@@ -120,7 +120,7 @@ export default function AdminChatWidget() {
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <MessageCircle size={15} className="text-amber-500" />
+                <MessageCircle size={15} className="text-green-600" />
                 <span className="text-sm font-semibold text-gray-800">Chat gruppi</span>
                 {totalUnread > 0 && (
                   <span className="min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-bold flex items-center justify-center" style={{ background: '#ef4444' }}>

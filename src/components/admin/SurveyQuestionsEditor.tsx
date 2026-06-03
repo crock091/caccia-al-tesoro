@@ -116,7 +116,7 @@ export default function SurveyQuestionsEditor({ initialQuestions }: Props) {
           className={`bg-white rounded-2xl border ${q.active ? 'border-gray-200' : 'border-gray-100 opacity-60'} shadow-sm p-4 flex gap-3 items-start`}
         >
           {/* Numero */}
-          <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span className="w-7 h-7 rounded-full bg-violet-100 text-green-800 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
             {i + 1}
           </span>
 
@@ -135,7 +135,7 @@ export default function SurveyQuestionsEditor({ initialQuestions }: Props) {
                   <button
                     onClick={() => saveEdit(q)}
                     disabled={savingId === q.id}
-                    className="p-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors disabled:opacity-50"
+                    className="p-1.5 rounded-lg bg-green-700 hover:bg-green-800 text-white transition-colors disabled:opacity-50"
                   >
                     <Check size={14} />
                   </button>
@@ -168,7 +168,7 @@ export default function SurveyQuestionsEditor({ initialQuestions }: Props) {
               <button onClick={() => moveQuestion(q, 'down')} disabled={i === sorted.length - 1} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 disabled:opacity-20 transition-colors">
                 <ChevronDown size={15} />
               </button>
-              <button onClick={() => startEdit(q)} className="p-1.5 rounded-lg hover:bg-violet-50 text-violet-500 transition-colors">
+              <button onClick={() => startEdit(q)} className="p-1.5 rounded-lg hover:bg-green-50 text-green-700 transition-colors">
                 <Pencil size={15} />
               </button>
               <button
@@ -185,8 +185,8 @@ export default function SurveyQuestionsEditor({ initialQuestions }: Props) {
 
       {/* Aggiungi nuova domanda */}
       {addingNew ? (
-        <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-4 flex gap-3 items-start">
-          <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div className="bg-white rounded-2xl border border-green-300 shadow-sm p-4 flex gap-3 items-start">
+          <span className="w-7 h-7 rounded-full bg-violet-100 text-green-800 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
             {sorted.length + 1}
           </span>
           <div className="flex-1 flex gap-2 items-start">
@@ -202,7 +202,7 @@ export default function SurveyQuestionsEditor({ initialQuestions }: Props) {
               <button
                 onClick={addQuestion}
                 disabled={saving || !newText.trim()}
-                className="p-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors disabled:opacity-50"
+                className="p-1.5 rounded-lg bg-green-700 hover:bg-green-800 text-white transition-colors disabled:opacity-50"
               >
                 <Check size={14} />
               </button>
@@ -218,7 +218,7 @@ export default function SurveyQuestionsEditor({ initialQuestions }: Props) {
       ) : (
         <button
           onClick={() => setAddingNew(true)}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border-2 border-dashed border-violet-200 text-violet-500 hover:border-violet-400 hover:bg-violet-50 transition-colors text-sm font-medium"
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl border-2 border-dashed border-green-300 text-green-700 hover:border-green-500 hover:bg-green-50 transition-colors text-sm font-medium"
         >
           <Plus size={16} /> Aggiungi domanda
         </button>
