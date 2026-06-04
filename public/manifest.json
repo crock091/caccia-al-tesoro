@@ -4,8 +4,8 @@
   "description": "App per cacce al tesoro nelle Langhe e Roero",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fffbeb",
-  "theme_color": "#d97706",
+  "background_color": "#6DAB3C",
+  "theme_color": "#206134",
   "orientation": "portrait",
   "icons": [
     {
