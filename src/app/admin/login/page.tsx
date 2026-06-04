@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
 
   return (
     <main
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex flex-col items-center p-4"
       style={{
         backgroundColor: '#f0f4f0',
         backgroundImage: "url('/immagine-desktop.png')",
@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
       }}
     >
       <div className="absolute inset-0" style={{ background: 'rgba(240,244,240,0.20)', pointerEvents: 'none' }} />
-      <div className="relative z-10 w-full max-w-sm">
+      <div className="relative z-10 w-full max-w-sm flex-1 flex flex-col justify-center">
         <div className="text-center mb-6">
           <div className="bg-white rounded-2xl p-3 shadow-lg inline-block mb-4">
             <Image src="/Logo-sito-poll.avif" alt="Logo" width={100} height={100} />
@@ -98,6 +98,8 @@ export default function AdminLoginPage() {
             </button>
           </form>
         </div>
+      </div>
+      <div style={{ position: 'relative' }}>
         <PoweredByFooter />
       </div>
     </main>
