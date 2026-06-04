@@ -46,6 +46,17 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
     // Salva group id in localStorage per sessione
     localStorage.setItem('group_id', group.id)
     localStorage.setItem('group_name', group.name)
+    // Notifica push all'admin (non bloccante, tag fisso = no spam se più device)
+    fetch('/api/push/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'group_joined',
+        groupId: group.id,
+        groupName: group.name,
+        eventId: group.event_id,
+      }),
+    }).catch(() => {})
     router.push(`/game/${group.id}`)
   }
 

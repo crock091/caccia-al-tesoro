@@ -227,6 +227,16 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
     }, { onConflict: 'group_id,checkpoint_id' })
 
     setSurveySubmitted(true)
+    // Notifica push all'admin
+    fetch('/api/push/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'survey_submitted',
+        groupId: group.id,
+        groupName: group.name,
+      }),
+    }).catch(() => {})
     // Avanza il gruppo
     await handleAdvanceWithoutMedia(currentCp)
   }

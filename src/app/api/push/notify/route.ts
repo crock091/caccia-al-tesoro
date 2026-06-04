@@ -7,6 +7,8 @@ type NotifyBody =
   | { type: 'qr_issue';       groupId: string; groupName: string }
   | { type: 'checkpoint';     groupId: string; groupName: string; checkpointTitle: string; finished: boolean }
   | { type: 'chat_message';   groupId: string; groupName: string; preview: string }
+  | { type: 'group_joined';   groupId: string; groupName: string; eventId: string }
+  | { type: 'survey_submitted'; groupId: string; groupName: string }
 
 // POST /api/push/notify — inviato da game/scan page (client-side)
 // Non richiede autenticazione ma valida che l'evento sia reale
@@ -76,6 +78,30 @@ export async function POST(req: Request) {
       title: `💬 ${body.groupName}`,
       body: body.preview || 'Ha inviato un messaggio',
       tag: 'chat-' + body.groupId,
+      url: '/admin',
+    })
+  } else if (body.type === 'group_joined') {
+    // Verifica che l'evento sia attivo prima di notificare
+    const { data } = await supabase
+      .from('events')
+      .select('id')
+      .eq('id', body.eventId)
+      .eq('status', 'active')
+      .maybeSingle()
+
+    if (!data) return NextResponse.json({ ok: false })
+
+    await sendPushToAdmins({
+      title: '👥 Gruppo connesso',
+      body: `${body.groupName} è entrato in gioco`,
+      tag: 'joined-' + body.groupId,   // tag fisso: non duplica se più device dello stesso gruppo
+      url: '/admin',
+    })
+  } else if (body.type === 'survey_submitted') {
+    await sendPushToAdmins({
+      title: '🌟 Sondaggio compilato',
+      body: `${body.groupName} ha inviato le valutazioni`,
+      tag: 'survey-' + body.groupId,
       url: '/admin',
     })
   }
