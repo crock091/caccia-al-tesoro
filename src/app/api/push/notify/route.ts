@@ -71,8 +71,6 @@ export async function POST(req: Request) {
             url: '/admin',
           }
     )
-  }
-
   } else if (body.type === 'chat_message') {
     await sendPushToAdmins({
       title: `💬 ${body.groupName}`,
