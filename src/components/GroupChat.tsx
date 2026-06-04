@@ -7,6 +7,7 @@ import type { Message } from '@/lib/types'
 
 interface GroupChatProps {
   groupId: string
+  groupName?: string
   sender: 'group' | 'admin'
   onUnread?: (groupId: string, content: string) => void
   hideHeader?: boolean
@@ -14,7 +15,7 @@ interface GroupChatProps {
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 
-export default function GroupChat({ groupId, sender, onUnread, hideHeader = false }: GroupChatProps) {
+export default function GroupChat({ groupId, groupName, sender, onUnread, hideHeader = false }: GroupChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -134,6 +135,19 @@ export default function GroupChat({ groupId, sender, onUnread, hideHeader = fals
       media_url: mediaUrl,
       sender,
     })
+    // Notifica push all'admin quando è il gruppo a scrivere
+    if (sender === 'group') {
+      fetch('/api/push/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'chat_message',
+          groupId,
+          groupName: groupName ?? 'Gruppo',
+          preview: text || (mediaUrl ? '📎 File allegato' : ''),
+        }),
+      }).catch(() => {/* non bloccante */})
+    }
     setSending(false)
   }
 

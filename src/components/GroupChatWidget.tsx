@@ -6,9 +6,10 @@ import GroupChat from '@/components/GroupChat'
 
 interface GroupChatWidgetProps {
   groupId: string
+  groupName?: string
 }
 
-export default function GroupChatWidget({ groupId }: GroupChatWidgetProps) {
+export default function GroupChatWidget({ groupId, groupName }: GroupChatWidgetProps) {
   const [open, setOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -88,6 +89,7 @@ export default function GroupChatWidget({ groupId }: GroupChatWidgetProps) {
           <div className="flex-1 overflow-hidden">
             <GroupChat
               groupId={groupId}
+              groupName={groupName}
               sender="group"
               hideHeader
               onUnread={(_gid, _content) => {

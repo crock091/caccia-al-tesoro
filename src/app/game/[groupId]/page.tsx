@@ -693,7 +693,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
           </div>
         )}
 
-        {groupId && <GroupChatWidget groupId={groupId} />}
+        {groupId && <GroupChatWidget groupId={groupId} groupName={group?.name} />}
       </div>
 
       <PoweredByFooter dark />

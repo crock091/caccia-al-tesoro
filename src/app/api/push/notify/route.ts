@@ -6,6 +6,7 @@ type NotifyBody =
   | { type: 'new_submission'; groupId: string; groupName: string }
   | { type: 'qr_issue';       groupId: string; groupName: string }
   | { type: 'checkpoint';     groupId: string; groupName: string; checkpointTitle: string; finished: boolean }
+  | { type: 'chat_message';   groupId: string; groupName: string; preview: string }
 
 // POST /api/push/notify — inviato da game/scan page (client-side)
 // Non richiede autenticazione ma valida che l'evento sia reale
@@ -70,6 +71,15 @@ export async function POST(req: Request) {
             url: '/admin',
           }
     )
+  }
+
+  } else if (body.type === 'chat_message') {
+    await sendPushToAdmins({
+      title: `💬 ${body.groupName}`,
+      body: body.preview || 'Ha inviato un messaggio',
+      tag: 'chat-' + body.groupId,
+      url: '/admin',
+    })
   }
 
   return NextResponse.json({ ok: true })
