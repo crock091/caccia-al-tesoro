@@ -43,7 +43,7 @@ export default function AdminLoginPage() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="absolute inset-0" style={{ background: 'rgba(240,244,240,0.20)', pointerEvents: 'none' }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(2px)' }} />
       <div className="relative z-10 w-full max-w-sm flex-1 flex flex-col justify-center">
         <div className="text-center mb-6">
           <div className="bg-white rounded-2xl p-3 shadow-lg inline-block mb-4">
