@@ -7,9 +7,13 @@ export default function PoweredByFooter({ dark = false }: { dark?: boolean }) {
         <img
           src="/LOGO11.png"
           alt="Crock"
-          width={28}
-          height={28}
-          style={{ objectFit: 'contain', opacity: 0.85, filter: 'invert(1) brightness(2)' }}
+          width={36}
+          height={36}
+          style={{
+            objectFit: 'contain',
+            mixBlendMode: dark ? 'screen' : 'multiply',
+            opacity: 0.85,
+          }}
         />
       </div>
       <span style={{ opacity: 0.55 }}>© {new Date().getFullYear()} Crock</span>
