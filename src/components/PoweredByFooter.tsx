@@ -1,6 +1,6 @@
 export default function PoweredByFooter({ dark = false }: { dark?: boolean }) {
   return (
-    <div className={`flex flex-col items-center gap-2 py-4 text-xs font-medium ${dark ? 'text-white/60' : 'text-gray-500'}`}>
+    <div className="flex flex-col items-center gap-2 py-4 text-xs font-medium text-white/60">
       <div className="flex items-center gap-2">
         <span>Powered by</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}

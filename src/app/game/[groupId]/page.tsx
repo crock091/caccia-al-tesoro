@@ -704,9 +704,8 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
         )}
 
         {groupId && <GroupChatWidget groupId={groupId} groupName={group?.name} />}
+        <PoweredByFooter dark />
       </div>
-
-      <PoweredByFooter dark />
 
       {/* Modal scanner QR */}
       {showScanner && (
