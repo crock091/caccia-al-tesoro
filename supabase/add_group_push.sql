@@ -4,14 +4,18 @@
 ALTER TABLE push_subscriptions
   ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES groups(id) ON DELETE CASCADE;
 
+-- Unique constraint su endpoint da solo (necessario per upsert gruppi)
+ALTER TABLE push_subscriptions
+  DROP CONSTRAINT IF EXISTS push_subscriptions_endpoint_key;
+ALTER TABLE push_subscriptions
+  ADD CONSTRAINT push_subscriptions_endpoint_key UNIQUE (endpoint);
+
 -- Indice per query per gruppo
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_group_id
   ON push_subscriptions(group_id)
   WHERE group_id IS NOT NULL;
 
 -- Permetti INSERT senza autenticazione (per i gruppi)
--- La policy esistente di SELECT era già pubblica
--- Aggiungiamo INSERT public per group_id NOT NULL
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -26,5 +30,32 @@ BEGIN
   END IF;
 END $$;
 
--- Permetti DELETE per le subscriptions scadute (da server-side via service_role)
--- Già gestito dalla logica server con anon key nelle notifiche
+-- Permetti SELECT anon (per sendPushToGroup che usa anon key)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'push_subscriptions'
+      AND policyname = 'Public read push subscriptions'
+  ) THEN
+    CREATE POLICY "Public read push subscriptions"
+      ON push_subscriptions FOR SELECT
+      TO anon
+      USING (true);
+  END IF;
+END $$;
+
+-- Permetti DELETE anon (per rimuovere subscriptions scadute)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'push_subscriptions'
+      AND policyname = 'Anon can delete expired subscriptions'
+  ) THEN
+    CREATE POLICY "Anon can delete expired subscriptions"
+      ON push_subscriptions FOR DELETE
+      TO anon
+      USING (true);
+  END IF;
+END $$;
