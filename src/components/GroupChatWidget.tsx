@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { MessageCircle, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import GroupChat from '@/components/GroupChat'
@@ -15,9 +15,10 @@ export default function GroupChatWidget({ groupId, groupName }: GroupChatWidgetP
   const [open, setOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [prefetchedMessages, setPrefetchedMessages] = useState<Message[] | null>(null)
+  const openRef = useRef(false)
   const supabase = createClient()
 
-  // Prefetch messaggi in background al mount
+  // Prefetch messaggi in background al mount + subscription realtime per badge
   useEffect(() => {
     supabase
       .from('messages')
@@ -27,16 +28,35 @@ export default function GroupChatWidget({ groupId, groupName }: GroupChatWidgetP
       .then(({ data }) => {
         setPrefetchedMessages((data as Message[]) ?? [])
       })
+
+    // Subscription realtime per incrementare badge quando chat è chiusa
+    const channel = supabase
+      .channel(`widget-unread-${groupId}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: `group_id=eq.${groupId}` },
+        (payload) => {
+          const msg = payload.new as Message
+          if (msg.sender === 'admin' && !openRef.current) {
+            setUnreadCount(prev => prev + 1)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId])
 
   function openChat() {
     setOpen(true)
+    openRef.current = true
     setUnreadCount(0)
   }
 
   function closeChat() {
     setOpen(false)
+    openRef.current = false
   }
 
   return (
