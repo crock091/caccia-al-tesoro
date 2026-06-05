@@ -28,10 +28,9 @@ export default function AdminLoginPage() {
       return
     }
 
-    // Aspetta che la sessione sia salvata nel cookie (necessario su iOS 15)
-    // e poi forza un reload completo per far leggere il cookie al middleware SSR
-    await new Promise(resolve => setTimeout(resolve, 300))
-    window.location.replace('/admin')
+    // Vai alla pagina callback che verifica la sessione client-side
+    // prima di procedere all'admin (compatibile iOS 15)
+    window.location.replace('/auth/callback')
   }
 
   return (
