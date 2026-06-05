@@ -28,8 +28,9 @@ export default function AdminLoginPage() {
       return
     }
 
-    router.push('/admin')
-    router.refresh()
+    // Usa reload completo invece di router.push per garantire
+    // che il cookie di sessione sia inviato correttamente su iOS 15
+    window.location.href = '/admin'
   }
 
   return (
