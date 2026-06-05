@@ -196,6 +196,16 @@ export default function GroupList({ groups: initialGroups, totalCheckpoints, eve
         ? { ...g, current_checkpoint_index: nextIndex, finished, finished_at: finished ? now : null, qr_issue_reported: false }
         : g
     ))
+    // Notifica push al gruppo
+    fetch('/api/push/group-notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'unlocked',
+        groupId: group.id,
+        finished,
+      }),
+    }).catch(() => {})
     setAdvancing(null)
   }
 

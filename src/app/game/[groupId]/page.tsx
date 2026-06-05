@@ -12,6 +12,7 @@ import type { Checkpoint, Group, Submission, SurveyQuestion } from '@/lib/types'
 const QrScannerModal = dynamic(() => import('@/components/QrScannerModal'), { ssr: false })
 const SurveyForm = dynamic(() => import('@/components/SurveyForm'), { ssr: false })
 const GroupChatWidget = dynamic(() => import('@/components/GroupChatWidget'), { ssr: false })
+const GroupPushRegistrar = dynamic(() => import('@/components/GroupPushRegistrar'), { ssr: false })
 
 export default function GamePage({ params }: { params: Promise<{ groupId: string }> }) {
   const [groupId, setGroupId] = useState('')
@@ -704,6 +705,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
         )}
 
         {groupId && <GroupChatWidget groupId={groupId} groupName={group?.name} />}
+        {groupId && <GroupPushRegistrar groupId={groupId} />}
         <PoweredByFooter dark />
       </div>
 

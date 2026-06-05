@@ -37,23 +37,51 @@ export async function sendPushToAdmins(payload: PushPayload): Promise<void> {
   const { data: subs, error } = await supabase
     .from('push_subscriptions')
     .select('endpoint, p256dh, auth_key')
+    .is('group_id', null)   // solo admin
 
   if (error) { console.error('[push] fetch subs error:', error.message); return }
-  if (!subs?.length) { console.log('[push] no subscriptions found'); return }
+  if (!subs?.length) { console.log('[push] no admin subscriptions found'); return }
 
-  console.log(`[push] sending "${payload.title}" to ${subs.length} sub(s)`)
+  console.log(`[push] sending "${payload.title}" to ${subs.length} admin sub(s)`)
 
   await Promise.all(
     subs.map(sub =>
       webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } },
         JSON.stringify(payload),
-        { TTL: 60 }   // conserva per 60s se device offline
-      ).then(() => {
-        console.log('[push] sent OK to', sub.endpoint.slice(-20))
-      }).catch(err => {
+        { TTL: 60 }
+      ).catch(err => {
         console.error('[push] send error', err.statusCode, err.body)
-        // Rimuovi subscription scaduta/non valida
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
+        }
+      })
+    )
+  )
+}
+
+export async function sendPushToGroup(groupId: string, payload: PushPayload): Promise<void> {
+  if (!initVapid()) return
+
+  const supabase = createAnonClient()
+  const { data: subs, error } = await supabase
+    .from('push_subscriptions')
+    .select('endpoint, p256dh, auth_key')
+    .eq('group_id', groupId)
+
+  if (error) { console.error('[push] fetch group subs error:', error.message); return }
+  if (!subs?.length) { console.log('[push] no group subscriptions for', groupId); return }
+
+  console.log(`[push] sending "${payload.title}" to group ${groupId} (${subs.length} sub(s))`)
+
+  await Promise.all(
+    subs.map(sub =>
+      webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } },
+        JSON.stringify(payload),
+        { TTL: 60 }
+      ).catch(err => {
+        console.error('[push] group send error', err.statusCode, err.body)
         if (err.statusCode === 410 || err.statusCode === 404) {
           supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
         }

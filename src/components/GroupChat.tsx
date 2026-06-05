@@ -148,6 +148,18 @@ export default function GroupChat({ groupId, groupName, sender, onUnread, hideHe
         }),
       }).catch(() => {/* non bloccante */})
     }
+    // Notifica push al gruppo quando è l'admin a scrivere
+    if (sender === 'admin') {
+      fetch('/api/push/group-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'admin_message',
+          groupId,
+          preview: text || (mediaUrl ? '📎 File allegato' : ''),
+        }),
+      }).catch(() => {/* non bloccante */})
+    }
     setSending(false)
   }
 
