@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Camera, Map, ChevronRight } from 'lucide-react'
 import PoweredByFooter from '@/components/PoweredByFooter'
+import PwaRedirect from '@/components/PwaRedirect'
 
 export default function HomePage() {
   return (
@@ -15,6 +16,7 @@ export default function HomePage() {
         backgroundRepeat: 'no-repeat',
       }}
     >
+      <PwaRedirect />
       {/* Gradiente che sbiadisce la parte bassa */}
       <div
         className="absolute inset-0 pointer-events-none"

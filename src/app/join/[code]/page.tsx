@@ -32,6 +32,8 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
   useEffect(() => {
     params.then(p => {
       setResolvedCode(p.code)
+      // Salva il codice in localStorage per il redirect automatico dopo installazione PWA
+      localStorage.setItem('pending_invite_code', p.code)
       loadGroup(p.code)
     })
   }, [])
@@ -66,6 +68,8 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
     // Salva group id in localStorage per sessione
     localStorage.setItem('group_id', group.id)
     localStorage.setItem('group_name', group.name)
+    // Rimuovi il codice pendente ora che il gruppo è entrato
+    localStorage.removeItem('pending_invite_code')
     // Notifica push all'admin (non bloccante, tag fisso = no spam se più device)
     fetch('/api/push/notify', {
       method: 'POST',
