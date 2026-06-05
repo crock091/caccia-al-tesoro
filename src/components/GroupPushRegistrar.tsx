@@ -44,7 +44,7 @@ export default function GroupPushRegistrar({ groupId }: { groupId: string }) {
       const json = sub.toJSON()
       if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return
 
-      await fetch('/api/push/group-subscribe', {
+      const res = await fetch('/api/push/group-subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -53,6 +53,12 @@ export default function GroupPushRegistrar({ groupId }: { groupId: string }) {
           keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
         }),
       })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        console.error('[GroupPushRegistrar] subscribe error:', err)
+      } else {
+        console.log('[GroupPushRegistrar] subscribed OK')
+      }
       setSubscribed(true)
     } catch (err: unknown) {
       // "push service not available" → succede su localhost o rete limitata, ignorabile

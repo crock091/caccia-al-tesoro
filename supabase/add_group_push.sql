@@ -1,6 +1,10 @@
 -- Aggiungi group_id a push_subscriptions per notifiche ai gruppi
 -- Esegui nel SQL Editor di Supabase
 
+-- Rendi user_id nullable (i gruppi non hanno autenticazione)
+ALTER TABLE push_subscriptions
+  ALTER COLUMN user_id DROP NOT NULL;
+
 ALTER TABLE push_subscriptions
   ADD COLUMN IF NOT EXISTS group_id uuid REFERENCES groups(id) ON DELETE CASCADE;
 

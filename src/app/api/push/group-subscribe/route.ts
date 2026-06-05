@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+
+function createServiceClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  )
+}
 
 // POST /api/push/group-subscribe — salva la subscription di un gruppo (senza auth)
 export async function POST(req: Request) {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   const body = await req.json()
   const { groupId, endpoint, keys } = body as {
@@ -37,7 +45,7 @@ export async function POST(req: Request) {
 
   if (error) {
     console.error('[push/group-subscribe]', error.message)
-    return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })
