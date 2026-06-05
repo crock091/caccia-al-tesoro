@@ -3,20 +3,24 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
-// Se il gruppo ha già un codice salvato (da una visita precedente al link di invito),
-// reindirizza automaticamente alla pagina join senza dover reinserire il codice.
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
+  return match ? decodeURIComponent(match[1]) : null
+}
+
 export default function PwaRedirect() {
   const router = useRouter()
 
   useEffect(() => {
-    const savedCode = localStorage.getItem('pending_invite_code')
     const groupId = localStorage.getItem('group_id')
+    const cookieCode = getCookie('pic')
+    const localCode = localStorage.getItem('pending_invite_code')
+    const savedCode = cookieCode || localCode
 
     if (groupId) {
-      // Già nel gruppo → vai direttamente alla game page
       router.replace(`/game/${groupId}`)
     } else if (savedCode) {
-      // Ha un codice invito salvato → vai alla join page
       router.replace(`/join/${savedCode}`)
     }
   }, [router])
