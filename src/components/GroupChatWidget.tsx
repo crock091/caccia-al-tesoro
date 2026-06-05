@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MessageCircle, X } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import GroupChat from '@/components/GroupChat'
+import type { Message } from '@/lib/types'
 
 interface GroupChatWidgetProps {
   groupId: string
@@ -12,6 +14,21 @@ interface GroupChatWidgetProps {
 export default function GroupChatWidget({ groupId, groupName }: GroupChatWidgetProps) {
   const [open, setOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [prefetchedMessages, setPrefetchedMessages] = useState<Message[] | null>(null)
+  const supabase = createClient()
+
+  // Prefetch messaggi in background al mount
+  useEffect(() => {
+    supabase
+      .from('messages')
+      .select('*')
+      .eq('group_id', groupId)
+      .order('created_at', { ascending: true })
+      .then(({ data }) => {
+        setPrefetchedMessages((data as Message[]) ?? [])
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupId])
 
   function openChat() {
     setOpen(true)
@@ -92,6 +109,7 @@ export default function GroupChatWidget({ groupId, groupName }: GroupChatWidgetP
               groupName={groupName}
               sender="group"
               hideHeader
+              initialMessages={prefetchedMessages}
               onUnread={(_gid, _content) => {
                 if (!open) setUnreadCount(prev => prev + 1)
               }}

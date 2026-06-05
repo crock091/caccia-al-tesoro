@@ -11,20 +11,21 @@ interface GroupChatProps {
   sender: 'group' | 'admin'
   onUnread?: (groupId: string, content: string) => void
   hideHeader?: boolean
+  initialMessages?: Message[] | null
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 
-export default function GroupChat({ groupId, groupName, sender, onUnread, hideHeader = false }: GroupChatProps) {
-  const [messages, setMessages] = useState<Message[]>([])
+export default function GroupChat({ groupId, groupName, sender, onUnread, hideHeader = false, initialMessages = null }: GroupChatProps) {
+  const [messages, setMessages] = useState<Message[]>(initialMessages ?? [])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(initialMessages === null)
   const [unreadCount, setUnreadCount] = useState(0)
   const [mediaPreview, setMediaPreview] = useState<{ file: File; localUrl: string } | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
-  const isLoadedRef = useRef(false)
+  const isLoadedRef = useRef(initialMessages !== null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
@@ -33,19 +34,26 @@ export default function GroupChat({ groupId, groupName, sender, onUnread, hideHe
       if (Notification.permission === 'default') Notification.requestPermission()
     }
 
-    isLoadedRef.current = false
+    isLoadedRef.current = initialMessages !== null
     setUnreadCount(0)
 
-    supabase
-      .from('messages')
-      .select('*')
-      .eq('group_id', groupId)
-      .order('created_at', { ascending: true })
-      .then(({ data }) => {
-        setMessages((data as Message[]) ?? [])
-        setLoading(false)
-        isLoadedRef.current = true
-      })
+    // Usa initialMessages se disponibili, altrimenti fetch
+    if (initialMessages !== null) {
+      setMessages(initialMessages)
+      setLoading(false)
+      isLoadedRef.current = true
+    } else {
+      supabase
+        .from('messages')
+        .select('*')
+        .eq('group_id', groupId)
+        .order('created_at', { ascending: true })
+        .then(({ data }) => {
+          setMessages((data as Message[]) ?? [])
+          setLoading(false)
+          isLoadedRef.current = true
+        })
+    }
 
     const channel = supabase
       .channel(`chat-${groupId}-${sender}-v2`)
