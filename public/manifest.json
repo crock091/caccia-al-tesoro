@@ -1,6 +1,6 @@
 {
-  "name": "Caccia al Tesoro",
-  "short_name": "Caccia",
+  "name": "TresorHunt",
+  "short_name": "TresorHunt",
   "description": "App per cacce al tesoro nelle Langhe e Roero",
   "start_url": "/",
   "display": "standalone",

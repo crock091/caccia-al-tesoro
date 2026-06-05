@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Caccia al Tesoro",
+  title: "TresorHunt",
   description: "App per cacce al tesoro nelle Langhe e Roero",
   manifest: "/manifest.json",
 };
@@ -34,7 +34,7 @@ export default function RootLayout({
         {/* iOS PWA */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Caccia" />
+        <meta name="apple-mobile-web-app-title" content="TresorHunt" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
