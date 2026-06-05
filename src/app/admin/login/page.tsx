@@ -28,9 +28,10 @@ export default function AdminLoginPage() {
       return
     }
 
-    // Usa reload completo invece di router.push per garantire
-    // che il cookie di sessione sia inviato correttamente su iOS 15
-    window.location.href = '/admin'
+    // Aspetta che la sessione sia salvata nel cookie (necessario su iOS 15)
+    // e poi forza un reload completo per far leggere il cookie al middleware SSR
+    await new Promise(resolve => setTimeout(resolve, 300))
+    window.location.replace('/admin')
   }
 
   return (
