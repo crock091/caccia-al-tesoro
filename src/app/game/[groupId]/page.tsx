@@ -81,7 +81,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
       supabase.from('survey_questions').select('*').eq('active', true).order('order_index'),
     ])
 
-    if (!g) { router.push('/'); return }
+    if (!g) { router.push('/join'); return }
 
     setGroup(g)
     setSurveyQuestions(sqData ?? [])

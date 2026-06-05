@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null
@@ -11,8 +11,12 @@ function getCookie(name: string): string | null {
 
 export default function PwaRedirect() {
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
+    // Esegui solo se siamo sulla home page
+    if (pathname !== '/') return
+
     const groupId = localStorage.getItem('group_id')
     const cookieCode = getCookie('pic')
     const localCode = localStorage.getItem('pending_invite_code')
@@ -23,7 +27,7 @@ export default function PwaRedirect() {
     } else if (savedCode) {
       router.replace(`/join/${savedCode}`)
     }
-  }, [router])
+  }, [pathname, router])
 
   return null
 }
