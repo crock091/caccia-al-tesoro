@@ -26,6 +26,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
   const [qrVerified, setQrVerified] = useState(false)
   const [reportingQr, setReportingQr] = useState(false)
   const [showScanner, setShowScanner] = useState(false)
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
   const [surveySubmitted, setSurveySubmitted] = useState(false)
   const [surveyQuestions, setSurveyQuestions] = useState<SurveyQuestion[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -474,11 +475,19 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
           </div>
 
           {currentCp.clue_image_url && (
-            <img
-              src={currentCp.clue_image_url}
-              alt="Indizio"
-              className="w-full rounded-2xl object-cover mb-4 max-h-48"
-            />
+            <button
+              type="button"
+              onClick={() => setLightboxUrl(currentCp.clue_image_url)}
+              className="w-full mb-4 focus:outline-none"
+            >
+              <img
+                src={currentCp.clue_image_url}
+                alt="Indizio"
+                className="w-full rounded-2xl object-contain mb-0"
+                style={{ maxHeight: '240px', background: 'rgba(0,0,0,0.3)' }}
+              />
+              <p className="text-xs mt-1 text-center" style={{ color: 'rgba(255,255,255,0.3)' }}>Tocca per ingrandire</p>
+            </button>
           )}
 
           {/* GPS indicator */}
@@ -715,6 +724,30 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
           onScan={handleQrScan}
           onClose={() => setShowScanner(false)}
         />
+      )}
+
+      {/* Lightbox foto indizio */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.92)' }}
+          onClick={() => setLightboxUrl(null)}
+        >
+          <img
+            src={lightboxUrl}
+            alt="Foto indizio ingrandita"
+            className="max-w-full max-h-full rounded-2xl object-contain"
+            style={{ boxShadow: '0 0 60px rgba(0,0,0,0.8)' }}
+            onClick={e => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setLightboxUrl(null)}
+            className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors"
+            style={{ lineHeight: 0 }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       )}
     </main>
   )

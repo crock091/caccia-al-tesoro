@@ -1,14 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus, Loader2, ImageIcon, X } from 'lucide-react'
 import { v4 as uuidv4 } from 'uuid'
 
 export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: string; nextIndex: number }) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
   const [form, setForm] = useState({
     title: '',
     clue: '',
@@ -27,11 +30,28 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
     e.preventDefault()
     setLoading(true)
 
+    const checkpointId = uuidv4()
+    let clue_image_url: string | null = null
+
+    if (imageFile) {
+      const ext = imageFile.name.split('.').pop()
+      const path = `checkpoints/${checkpointId}/clue.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(path, imageFile, { upsert: true })
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path)
+        clue_image_url = publicUrl
+      }
+    }
+
     await supabase.from('checkpoints').insert({
+      id: checkpointId,
       event_id: eventId,
       order_index: nextIndex,
       title: form.title,
       clue: form.clue,
+      clue_image_url,
       unlock_message: form.unlock_message || null,
       requires_qr: form.requires_qr,
       requires_media: form.requires_media,
@@ -44,6 +64,8 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
 
     setLoading(false)
     setOpen(false)
+    setImageFile(null)
+    setImagePreview(null)
     setForm({ title: '', clue: '', unlock_message: '', requires_qr: true, requires_media: false, has_survey: false, latitude: '', longitude: '', geo_radius_meters: '200' })
     router.refresh()
   }
@@ -97,6 +119,42 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
           placeholder="Mostrato ai gruppi quando sbloccano questa tappa"
         />
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-gray-600 mb-1">Foto del luogo <span className="text-gray-400 font-normal">(opzionale)</span></label>
+        {imagePreview && (
+          <div className="relative mb-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imagePreview} alt="Anteprima" className="w-full h-32 object-cover rounded-lg" />
+            <button
+              type="button"
+              onClick={() => { setImageFile(null); setImagePreview(null) }}
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors"
+            >
+              <X size={13} />
+            </button>
+          </div>
+        )}
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={e => {
+            const file = e.target.files?.[0]
+            if (file) { setImageFile(file); setImagePreview(URL.createObjectURL(file)) }
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => imageInputRef.current?.click()}
+          className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 transition-colors"
+        >
+          <ImageIcon size={13} />
+          {imageFile ? 'Cambia foto' : 'Aggiungi foto del luogo'}
+        </button>
+        <p className="text-xs text-gray-400 mt-0.5">Mostrata ai gruppi come riferimento. Abbinala a &quot;Richiede upload foto&quot; per chiedere una foto di conferma.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

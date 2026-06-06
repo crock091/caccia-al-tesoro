@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Trash2, Loader2, MapPin, Camera, QrCode, X, Download, Pencil, Check, RefreshCw, ChevronUp, ChevronDown } from 'lucide-react'
+import { Trash2, Loader2, MapPin, Camera, QrCode, X, Download, Pencil, Check, RefreshCw, ChevronUp, ChevronDown, ImageIcon } from 'lucide-react'
 import type { Checkpoint } from '@/lib/types'
 import { QRCodeSVG } from 'qrcode.react'
 import { v4 as uuidv4 } from 'uuid'
+import { useRef } from 'react'
 
 /** Converte decimale o DMS (44°41'41.3"N) in numero decimale */
 function parseCoord(value: string): number | null {
@@ -33,6 +34,7 @@ interface EditForm {
   latitude: string
   longitude: string
   geo_radius_meters: string
+  clue_image_url: string
 }
 
 export default function CheckpointList({ checkpoints: initialCheckpoints, eventId }: { checkpoints: Checkpoint[]; eventId: string }) {
@@ -43,6 +45,9 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
   const [savingId, setSavingId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<EditForm | null>(null)
+  const [editImageFile, setEditImageFile] = useState<File | null>(null)
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null)
+  const editImageRef = useRef<HTMLInputElement>(null)
   const [qrCheckpoint, setQrCheckpoint] = useState<Checkpoint | null>(null)
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
   const [movingId, setMovingId] = useState<string | null>(null)
@@ -59,6 +64,8 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
 
   function startEdit(cp: Checkpoint) {
     setEditingId(cp.id)
+    setEditImageFile(null)
+    setEditImagePreview(null)
     setEditForm({
       title: cp.title,
       clue: cp.clue,
@@ -69,20 +76,38 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
       latitude: cp.latitude?.toString() ?? '',
       longitude: cp.longitude?.toString() ?? '',
       geo_radius_meters: cp.geo_radius_meters?.toString() ?? '200',
+      clue_image_url: cp.clue_image_url ?? '',
     })
   }
 
   function cancelEdit() {
     setEditingId(null)
     setEditForm(null)
+    setEditImageFile(null)
+    setEditImagePreview(null)
   }
 
   async function handleSave(cp: Checkpoint) {
     if (!editForm) return
     setSavingId(cp.id)
+
+    let clue_image_url: string | null = editForm.clue_image_url || null
+    if (editImageFile) {
+      const ext = editImageFile.name.split('.').pop()
+      const path = `checkpoints/${cp.id}/clue.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(path, editImageFile, { upsert: true })
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(path)
+        clue_image_url = publicUrl
+      }
+    }
+
     const { error } = await supabase.from('checkpoints').update({
       title: editForm.title,
       clue: editForm.clue,
+      clue_image_url,
       unlock_message: editForm.unlock_message || null,
       requires_qr: editForm.requires_qr,
       requires_media: editForm.requires_media,
@@ -98,6 +123,8 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
     }
     setEditingId(null)
     setEditForm(null)
+    setEditImageFile(null)
+    setEditImagePreview(null)
     router.refresh()
   }
 
@@ -175,6 +202,12 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm text-gray-900">{cp.title}</p>
                 <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{cp.clue}</p>
+                {cp.clue_image_url && (
+                  <div className="mt-1.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={cp.clue_image_url} alt="Foto luogo" className="h-12 rounded-lg object-cover" />
+                  </div>
+                )}
                 <div className="flex items-center gap-3 mt-1.5">
                   {cp.latitude && cp.longitude && (
                     <span className="flex items-center gap-1 text-xs text-green-600">
@@ -267,6 +300,52 @@ export default function CheckpointList({ checkpoints: initialCheckpoints, eventI
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none"
                     placeholder="Mostrato ai gruppi quando sbloccano questa tappa"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Foto del luogo <span className="text-gray-400 font-normal">(opzionale)</span></label>
+                  {(editImagePreview || editForm.clue_image_url) && (
+                    <div className="relative mb-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={editImagePreview || editForm.clue_image_url || undefined}
+                        alt="Foto luogo"
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditImageFile(null)
+                          setEditImagePreview(null)
+                          setEditForm(f => f ? { ...f, clue_image_url: '' } : f)
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 transition-colors"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    ref={editImageRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setEditImageFile(file)
+                        setEditImagePreview(URL.createObjectURL(file))
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => editImageRef.current?.click()}
+                    className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <ImageIcon size={13} />
+                    {editForm.clue_image_url ? 'Cambia foto' : 'Aggiungi foto del luogo'}
+                  </button>
+                  <p className="text-xs text-gray-400 mt-0.5">Mostrata ai gruppi come riferimento visivo.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>

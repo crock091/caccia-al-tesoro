@@ -17,7 +17,7 @@ export interface Checkpoint {
   order_index: number
   title: string
   clue: string
-  clue_image_url: string | null
+  clue_image_url: string | null        // Foto di riferimento del luogo (opzionale)
   unlock_message: string | null
   latitude: number | null
   longitude: number | null
