@@ -353,15 +353,15 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0b0f19' }}>
-        <Loader2 className="animate-spin" size={32} style={{ color: '#6DAB3C' }} />
+      <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0f1e16' }}>
+        <Loader2 className="animate-spin" size={32} style={{ color: '#4ade80' }} />
       </main>
     )
   }
 
   if (!group || !checkpoints.length) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-6 text-center" style={{ backgroundColor: '#0b0f19' }}>
+      <main className="min-h-screen flex items-center justify-center p-6 text-center" style={{ backgroundColor: '#0f1e16' }}>
         <p className="text-slate-400">Evento non trovato o non ancora iniziato.</p>
       </main>
     )
@@ -373,29 +373,29 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
       <main
         className="min-h-screen flex flex-col items-center justify-center p-6 text-center relative overflow-hidden"
         style={{
-          backgroundColor: '#0b0f19',
-          backgroundImage: `url('/game-bg.png')`,
+          backgroundColor: '#0f1e16',
+          backgroundImage: `url('/sfondo.jpeg')`,
           backgroundSize: 'auto 100vh',
           backgroundPosition: 'center top',
           backgroundRepeat: 'no-repeat',
         }}
       >
-        <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(5,10,15,0.72)', zIndex: 0 }} />
+        <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(18,55,43,0.70)', zIndex: 0 }} />
+        <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 15% 20%, rgba(255,255,255,.16), transparent 26%), linear-gradient(to bottom, rgba(12,42,31,.1), rgba(12,42,31,.38))', zIndex: 1 }} />
         <div className="relative z-10 flex flex-col items-center">
-          <div className="bg-white rounded-2xl p-3 mb-6 shadow-lg">
-            <Image src="/Logo-sito-poll.avif" alt="Logo" width={100} height={100} />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Logo-sito-poll.avif" alt="Logo" style={{ height: '36px', width: 'auto', marginBottom: '1.5rem' }} />
           <div
             className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 text-5xl"
-            style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', boxShadow: '0 20px 60px rgba(109,171,60,0.45)' }}
+            style={{ background: 'linear-gradient(135deg, #4ade80, #166534)', boxShadow: '0 20px 60px rgba(109,171,60,0.45)' }}
           >
             🎉
           </div>
           <h1 className="text-3xl font-black text-white mb-2">Complimenti!</h1>
-          <p className="text-lg mb-1" style={{ color: '#6DAB3C' }}>Hai completato la caccia al tesoro!</p>
+          <p className="text-lg mb-1" style={{ color: '#4ade80' }}>Hai completato la caccia al tesoro!</p>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Siete arrivati alle {group.finished_at ? new Date(group.finished_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : ''}</p>
           <div className="mt-8">
-            <Trophy className="mx-auto" style={{ color: '#6DAB3C' }} size={64} />
+            <Trophy className="mx-auto" style={{ color: '#4ade80' }} size={64} />
           </div>
           <PoweredByFooter dark />
         </div>
@@ -410,18 +410,19 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
     <main
       className="min-h-screen relative"
       style={{
-        backgroundColor: '#0b0f19',
-        backgroundImage: `url('/game-bg.png')`,
-        backgroundSize: 'auto 100vh',
-        backgroundPosition: 'center top',
+        backgroundColor: '#0f1e16',
+        backgroundImage: `url('/sfondo.jpeg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
       }}
     >
       {/* Overlay scuro per leggibilità */}
-      <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(5,10,15,0.72)', zIndex: 0 }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(18,55,43,0.70)', zIndex: 0 }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 15% 20%, rgba(255,255,255,.16), transparent 26%), linear-gradient(to bottom, rgba(12,42,31,.1), rgba(12,42,31,.38))', zIndex: 1 }} />
       {/* Header gruppo + logo */}
-      <div className="relative z-10 px-5 py-3" style={{ borderBottom: '1px solid rgba(109, 171, 60, 0.2)', background: 'rgba(5,10,15,0.6)', backdropFilter: 'blur(8px)' }}>
-        <div className="max-w-[400px] mx-auto flex items-center justify-between gap-4">
+      <div className="relative z-10 px-5 py-3" style={{ borderBottom: '1px solid rgba(74,222,128,0.2)', background: 'rgba(7,22,14,0.6)', backdropFilter: 'blur(8px)' }}>
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <div className="flex-1">
             <p className="text-[10px] mb-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>Gruppo</p>
             <p className="font-semibold text-white text-sm leading-tight mb-1.5">{group.name}</p>
@@ -429,23 +430,26 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
               <div className="h-0.5 rounded-full overflow-hidden" style={{ width: '80px', background: 'rgba(109, 171, 60, 0.1)' }}>
                 <div
                   className="h-full rounded-full transition-all"
-                  style={{ width: `${((group.current_checkpoint_index) / checkpoints.length) * 100}%`, background: 'linear-gradient(90deg, #6DAB3C, #206134)' }}
+                  style={{ width: `${((group.current_checkpoint_index) / checkpoints.length) * 100}%`, background: 'linear-gradient(90deg, #4ade80, #166534)' }}
                 />
               </div>
               <p className="text-xs font-semibold leading-none">
-                <span style={{ color: '#6DAB3C' }}>{group.current_checkpoint_index + 1}</span>
+                <span style={{ color: '#4ade80' }}>{group.current_checkpoint_index + 1}</span>
                 <span style={{ color: 'rgba(255,255,255,0.35)' }}>/{checkpoints.length}</span>
                 <span className="ml-1 text-[10px] font-normal" style={{ color: 'rgba(255,255,255,0.35)' }}>tappa</span>
               </p>
             </div>
           </div>
-          <div className="bg-white rounded-2xl p-2 shadow-lg flex-shrink-0">
-            <Image src="/Logo-sito-poll.avif" alt="Logo" width={72} height={72} />
+          <div className="flex-shrink-0">
+            <div className="rounded-xl px-3 py-1.5" style={{ background: 'rgba(255,250,240,0.92)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/Logo-sito-poll.avif" alt="Logo" style={{ height: '20px', width: 'auto' }} />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="relative z-10 max-w-[400px] mx-auto px-5 pt-6 pb-28 flex flex-col gap-6">
+      <div className="relative z-10 max-w-5xl mx-auto w-full px-5 pt-6 pb-28 flex flex-col gap-6 md:grid md:grid-cols-2 md:items-start">
 
         {/* Messaggio sblocco */}
         {unlockMessage && (
@@ -460,14 +464,15 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
         )}
 
         {/* Card tappa corrente */}
-        <div className="rounded-[20px] p-[22px]" style={{ background: 'rgba(11,15,25,0.88)', border: '1px solid rgba(109, 171, 60, 0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-          <span className="inline-block text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest" style={{ background: 'rgba(109, 171, 60, 0.12)', color: '#6DAB3C' }}>
+        <div className="rounded-[20px] p-[22px]" style={{ background: 'rgba(20,43,28,0.88)', border: '1px solid rgba(74,222,128,0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          <span className="inline-block text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest" style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80' }}>
             Tappa {group.current_checkpoint_index + 1}
           </span>
           <h2 className="font-black text-white mb-4" style={{ fontSize: '2.4rem', letterSpacing: '-1px', lineHeight: '1.05' }}>{currentCp.title}</h2>
 
-          <div className="p-4 mb-4 rounded-r-xl" style={{ borderLeft: '3px solid #6DAB3C' }}>
-            <p className="flex items-center gap-1.5 text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#6DAB3C' }}>
+          <div className="p-4 mb-4 rounded-r-xl" style={{ borderLeft: '3px solid #4ade80' }}
+>
+            <p className="flex items-center gap-1.5 text-xs font-semibold mb-2 uppercase tracking-wide" style={{ color: '#4ade80' }}>
               <svg className="w-[14px] h-[14px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
               Indizio
             </p>
@@ -493,7 +498,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
           {/* GPS indicator */}
           {gpsStatus === 'active' && (
             <div className="flex items-center gap-1.5 text-xs" style={{ color: '#8899a6' }}>
-              <MapPin size={13} style={{ color: '#6DAB3C' }} />
+              <MapPin size={13} style={{ color: '#4ade80' }} />
               <span>Posizione GPS condivisa con l&apos;organizzatore</span>
             </div>
           )}
@@ -519,9 +524,9 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {/* Sezione upload media */}
         {currentCp.requires_media && (
-          <div className="rounded-[20px] p-[22px]" style={{ background: 'rgba(11,15,25,0.88)', border: '1px solid rgba(109, 171, 60, 0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          <div className="rounded-[20px] p-[22px]" style={{ background: 'rgba(20,43,28,0.88)', border: '1px solid rgba(74,222,128,0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
             <h3 className="font-semibold text-white mb-1 flex items-center gap-2">
-              <Camera size={18} style={{ color: '#6DAB3C' }} />
+              <Camera size={18} style={{ color: '#4ade80' }} />
               Prova richiesta
             </h3>
             <p className="text-sm mb-4" style={{ color: '#8899a6' }}>
@@ -539,7 +544,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
                 <button
                   onClick={() => setShowScanner(true)}
                   className="flex items-center gap-2 font-semibold px-5 py-3 rounded-full text-sm transition-opacity active:opacity-70"
-                  style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#0b0f19', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
+                  style={{ background: 'linear-gradient(135deg, #4ade80, #166534)', color: '#0a1a0c', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
                 >
                   <Camera size={17} /> Apri fotocamera
                 </button>
@@ -573,7 +578,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
                   className="w-full flex items-center justify-center gap-2 font-semibold py-4 rounded-full transition-opacity disabled:opacity-60"
-                  style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#0b0f19', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
+                  style={{ background: 'linear-gradient(135deg, #4ade80, #166534)', color: '#0a1a0c', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
                 >
                   {uploading ? (
                     <><Loader2 size={18} className="animate-spin" /> Caricamento...</>
@@ -625,14 +630,14 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
           (!currentCp.requires_media || submission?.status === 'approved') && (
           <div
             className="fixed inset-0 z-50 flex flex-col"
-            style={{ animation: 'fadeIn 0.25s ease both', background: 'rgba(5,10,15,0.85)', backdropFilter: 'blur(6px)' }}
+            style={{ animation: 'fadeIn 0.25s ease both', background: 'rgba(7,22,14,0.85)', backdropFilter: 'blur(6px)' }}
           >
             <div
               className="mt-auto w-full max-h-[92vh] overflow-y-auto rounded-t-[28px]"
               style={{
                 animation: 'slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both',
-                background: '#0b0f19',
-                border: '1px solid rgba(109,171,60,0.25)',
+                background: '#0f1e16',
+                border: '1px solid rgba(74,222,128,0.25)',
                 borderBottom: 'none',
               }}
             >
@@ -649,7 +654,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {/* Tappa con sondaggio ma QR non ancora scansionato (solo se non richiede media e richiede QR) */}
         {currentCp.has_survey && !currentCp.requires_media && !qrVerified && (currentCp.requires_qr ?? true) && (
-          <div className="rounded-[20px] p-[22px] flex flex-col items-center gap-3 text-center" style={{ background: 'rgba(11,15,25,0.88)', border: '1px solid rgba(109, 171, 60, 0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          <div className="rounded-[20px] p-[22px] flex flex-col items-center gap-3 text-center" style={{ background: 'rgba(20,43,28,0.88)', border: '1px solid rgba(74,222,128,0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
             <div className="text-4xl">🌟</div>
             <p className="font-semibold text-white">Sei all&apos;ultima tappa!</p>
             <p className="text-sm" style={{ color: '#8899a6' }}>
@@ -658,7 +663,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
             <button
               onClick={() => setShowScanner(true)}
               className="flex items-center gap-2 font-semibold px-5 py-3 rounded-full text-sm transition-opacity active:opacity-70"
-              style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#0b0f19', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
+              style={{ background: 'linear-gradient(135deg, #4ade80, #166534)', color: '#0a1a0c', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
             >
               <Camera size={17} /> Apri fotocamera
             </button>
@@ -680,7 +685,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {/* Tappa QR-only (nessun media, nessun sondaggio, richiede QR): richiede la scansione del QR */}
         {!currentCp.requires_media && !currentCp.has_survey && (currentCp.requires_qr ?? true) && (
-          <div className="rounded-[20px] p-[22px] flex flex-col items-center gap-3 text-center" style={{ background: 'rgba(11,15,25,0.88)', border: '1px solid rgba(109, 171, 60, 0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+          <div className="rounded-[20px] p-[22px] flex flex-col items-center gap-3 text-center" style={{ background: 'rgba(20,43,28,0.88)', border: '1px solid rgba(74,222,128,0.25)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
             <div className="w-20 h-20 flex items-center justify-center rounded-[18px] mb-1" style={{ border: '2px dashed rgba(109, 171, 60, 0.3)' }}>
               <QrCode size={38} style={{ color: 'rgba(109, 171, 60, 0.4)' }} />
             </div>
@@ -693,7 +698,7 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
             <button
               onClick={() => setShowScanner(true)}
               className="flex items-center gap-2 font-semibold px-5 py-3 rounded-full text-sm transition-opacity active:opacity-70"
-              style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#0b0f19', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
+              style={{ background: 'linear-gradient(135deg, #4ade80, #166534)', color: '#0a1a0c', boxShadow: '0 6px 20px rgba(109,171,60,0.3)' }}
             >
               <Camera size={17} /> Apri fotocamera
             </button>
@@ -715,6 +720,10 @@ export default function GamePage({ params }: { params: Promise<{ groupId: string
 
         {groupId && <GroupChatWidget groupId={groupId} groupName={group?.name} />}
         {groupId && <GroupPushRegistrar groupId={groupId} />}
+      </div>
+
+      {/* Footer ancorato in fondo */}
+      <div className="relative z-10">
         <PoweredByFooter dark />
       </div>
 

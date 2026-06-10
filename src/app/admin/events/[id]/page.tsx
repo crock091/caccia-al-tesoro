@@ -24,38 +24,40 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   return (
     <div>
       <div className="flex items-center gap-3 mb-2">
-        <Link href="/admin" className="text-gray-400 hover:text-gray-700 transition-colors">
+        <Link href="/admin" className="transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>
           <ArrowLeft size={20} />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">{event.name}</h1>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-          event.status === 'active' ? 'bg-green-100 text-green-700' :
-          event.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-          'bg-gray-100 text-gray-600'
-        }`}>
+        <h1 className="display text-2xl font-bold text-white drop-shadow">{event.name}</h1>
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{
+          ...(event.status === 'active'
+            ? { background: 'rgba(74,222,128,0.15)', color: '#166534' }
+            : event.status === 'completed'
+            ? { background: 'rgba(184,132,69,0.15)', color: '#7a4f1e' }
+            : { background: 'rgba(219,232,220,0.9)', color: '#4a6258' })
+        }}>
           {event.status === 'active' ? 'In corso' : event.status === 'completed' ? 'Completato' : 'Bozza'}
         </span>
       </div>
       {event.date && (
-        <p className="text-sm text-gray-400 mb-6 ml-9">
+        <p className="text-sm mb-6 ml-9" style={{ color: 'rgba(255,255,255,0.5)' }}>
           {new Date(event.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
         </p>
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Tappe */}
-        <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+        <section className="rounded-2xl p-5" style={{ background: 'rgba(255,250,240,0.97)', boxShadow: '0 14px 34px rgba(7,33,24,0.15)', border: '1px solid rgba(255,255,255,0.6)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">Tappe ({checkpoints?.length ?? 0})</h2>
+            <h2 className="font-semibold" style={{ color: '#17372d' }}>Tappe ({checkpoints?.length ?? 0})</h2>
             <AddCheckpointButton eventId={id} nextIndex={(checkpoints?.length ?? 0)} />
           </div>
           <CheckpointList checkpoints={(checkpoints as Checkpoint[]) ?? []} eventId={id} />
         </section>
 
         {/* Gruppi */}
-        <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+        <section className="rounded-2xl p-5" style={{ background: 'rgba(255,250,240,0.97)', boxShadow: '0 14px 34px rgba(7,33,24,0.15)', border: '1px solid rgba(255,255,255,0.6)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">Gruppi ({groups?.length ?? 0})</h2>
+            <h2 className="font-semibold" style={{ color: '#17372d' }}>Gruppi ({groups?.length ?? 0})</h2>
             <AddGroupButton eventId={id} />
           </div>
           <GroupList groups={(groups as Group[]) ?? []} totalCheckpoints={checkpoints?.length ?? 0} eventId={id} />
@@ -63,8 +65,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       </div>
 
       {/* Approvazioni media pendenti */}
-      <section className="mt-6 bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-        <h2 className="font-semibold text-gray-900 mb-4">📸 Media da approvare</h2>
+      <section className="mt-6 rounded-2xl p-5" style={{ background: 'rgba(255,250,240,0.97)', boxShadow: '0 14px 34px rgba(7,33,24,0.15)', border: '1px solid rgba(255,255,255,0.6)' }}>
+        <h2 className="font-semibold mb-4" style={{ color: '#17372d' }}>📸 Media da approvare</h2>
         <SubmissionsPanel eventId={id} />
       </section>
     </div>

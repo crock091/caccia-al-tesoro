@@ -7,24 +7,47 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --forest:    #17372d;
+  --forest-2:  #214b3e;
+  --sage:      #dbe8dc;
+  --sage-2:    #ecf3ed;
+  --cream:     #fffaf0;
+  --cream-2:   #f7f0e4;
+  --gold:      #b88445;
+  --gold-soft: #e7d2b5;
+  --line:      #d8e4da;
+  --muted:     #667a6e;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--cream);
+  --color-foreground: var(--forest);
+  --font-sans: var(--font-dm-sans);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--cream);
+  color: var(--forest);
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+}
+
+.display {
+  font-family: var(--font-fraunces), 'Fraunces', serif;
+}
+
+.paper-shadow {
+  box-shadow: 0 20px 55px rgba(8, 30, 22, 0.18);
+}
+
+.soft-shadow {
+  box-shadow: 0 14px 34px rgba(7, 33, 24, 0.15);
+}
+
+.fade-in {
+  animation: fadeIn 0.45s ease both;
 }

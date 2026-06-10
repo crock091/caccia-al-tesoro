@@ -16,7 +16,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
     title: '',
     clue: '',
     unlock_message: '',
-    requires_qr: true,
+    requires_qr: false,
     requires_media: false,
     has_survey: false,
     latitude: '',
@@ -66,7 +66,7 @@ export default function AddCheckpointButton({ eventId, nextIndex }: { eventId: s
     setOpen(false)
     setImageFile(null)
     setImagePreview(null)
-    setForm({ title: '', clue: '', unlock_message: '', requires_qr: true, requires_media: false, has_survey: false, latitude: '', longitude: '', geo_radius_meters: '200' })
+    setForm({ title: '', clue: '', unlock_message: '', requires_qr: false, requires_media: false, has_survey: false, latitude: '', longitude: '', geo_radius_meters: '200' })
     router.refresh()
   }
 

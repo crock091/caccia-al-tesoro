@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import PoweredByFooter from '@/components/PoweredByFooter'
 
 export default function AdminLoginPage() {
@@ -35,64 +36,60 @@ export default function AdminLoginPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center p-4"
-      style={{
-        backgroundColor: '#f0f4f0',
-        backgroundImage: "url('/immagine-desktop.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="min-h-screen flex flex-col items-center justify-center px-5 fade-in"
+      style={{ background: 'rgb(23,55,45)', paddingTop: '2.5rem', paddingBottom: '4rem' }}
     >
-      <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(2px)' }} />
-      <div className="relative z-10 w-full max-w-sm flex-1 flex flex-col justify-center">
-        <div className="text-center mb-6">
-          <div className="bg-white rounded-2xl p-3 shadow-lg inline-block mb-4">
-            <Image src="/Logo-sito-poll.avif" alt="Logo" width={100} height={100} />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Area organizzatore</h1>
-          <p className="text-sm mt-1 text-gray-500">Accedi per gestire gli eventi</p>
-        </div>
+      {/* Sfondo */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="fixed inset-0 w-full h-full object-cover" style={{ zIndex: -3 }} src="/sfondo.jpeg" alt="" />
+      <div className="fixed inset-0" style={{ zIndex: -2, background: 'rgba(18,55,43,0.70)' }} />
+      <div className="fixed inset-0" style={{ zIndex: -1, background: 'radial-gradient(circle at 15% 20%, rgba(255,255,255,.16), transparent 26%), linear-gradient(to bottom, rgba(12,42,31,.1), rgba(12,42,31,.38))' }} />
 
-        <div className="rounded-2xl p-8 bg-white" style={{ border: '1px solid rgba(109,171,60,0.25)', boxShadow: '0 4px 32px rgba(0,0,0,0.10)' }}>
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+      <div className="relative z-10 w-full max-w-sm paper-shadow rounded-[2rem] overflow-hidden" style={{ background: 'rgba(255,250,240,0.97)' }}>
+        <div className="p-8">
+          <div className="flex flex-col items-center mb-8">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/Logo-sito-poll.avif" alt="Logo" style={{ height: '48px', width: 'auto', marginBottom: '1.25rem' }} />
+            <h1 className="display font-bold text-[#17372d] text-2xl mb-1 text-center">Area organizzatore</h1>
+            <p className="text-sm text-center" style={{ color: '#7b897f' }}>Accedi per gestire gli eventi</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: 'rgba(109,171,60,0.9)' }}>Email</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#405f51' }}>Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="w-full rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2"
-                style={{ border: '1px solid rgba(109,171,60,0.35)' }}
+                className="w-full rounded-2xl border px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
+                style={{ borderColor: '#d9e4da' }}
                 placeholder="organizzatore@email.it"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: 'rgba(109,171,60,0.9)' }}>Password</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: '#405f51' }}>Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full rounded-lg px-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2"
-                style={{ border: '1px solid rgba(109,171,60,0.35)' }}
+                className="w-full rounded-2xl border px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
+                style={{ borderColor: '#d9e4da' }}
               />
             </div>
 
             {error && (
-              <p className="text-sm rounded-lg px-3 py-2" style={{ color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
-                {error}
-              </p>
+              <p className="text-sm" style={{ color: '#a14f40' }}>{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 font-semibold py-2.5 rounded-lg transition-opacity disabled:opacity-60 mt-2"
-              style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#fff' }}
+              className="w-full rounded-2xl px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-60 transition-opacity"
+              style={{ background: '#17372d', color: '#fff' }}
             >
               {loading && <Loader2 size={16} className="animate-spin" />}
               Accedi
@@ -100,6 +97,10 @@ export default function AdminLoginPage() {
           </form>
         </div>
       </div>
+      <Link href="/" className="relative z-10 mt-5 flex items-center justify-center gap-1.5 text-sm font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
+        <ArrowLeft size={16} />
+        Torna alla home
+      </Link>
       <div style={{ position: 'relative' }}>
         <PoweredByFooter />
       </div>

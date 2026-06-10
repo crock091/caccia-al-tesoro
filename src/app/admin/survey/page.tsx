@@ -14,17 +14,17 @@ export default async function SurveyAdminPage() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
-        <Star size={20} className="text-green-700" />
+        <Star size={20} style={{ color: '#b88445' }} />
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Scheda di valutazione</h1>
-          <p className="text-sm text-gray-600 mt-0.5">
+          <h1 className="display text-2xl font-bold text-white drop-shadow">Scheda di valutazione</h1>
+          <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.6)' }}>
             Gestisci le domande del sondaggio mostrato ai partecipanti al completamento di una tappa.
           </p>
         </div>
       </div>
 
       <div className="max-w-2xl">
-        <div className="bg-green-50 border border-green-200 rounded-2xl px-5 py-4 mb-5 text-sm text-green-800">
+        <div className="rounded-2xl px-5 py-4 mb-5 text-sm" style={{ background: 'rgba(255,250,240,0.93)', color: '#17372d' }}>
           <strong>Come funziona:</strong> Le domande qui sotto vengono mostrate ai partecipanti quando completano
           una tappa con l&apos;opzione &ldquo;⭐ Sondaggio&rdquo; attiva. Puoi aggiungere, modificare,
           riordinare e disattivare singole domande.

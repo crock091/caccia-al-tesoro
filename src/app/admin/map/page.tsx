@@ -11,9 +11,9 @@ export default async function AdminMapPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Mappa live</h1>
+      <h1 className="display text-2xl font-bold text-white drop-shadow mb-4">Mappa live</h1>
       {!events?.length ? (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20" style={{ color: 'rgba(255,255,255,0.5)' }}>
           <p>Nessun evento attivo al momento.</p>
         </div>
       ) : (

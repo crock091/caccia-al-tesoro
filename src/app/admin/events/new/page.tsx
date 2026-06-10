@@ -38,48 +38,51 @@ export default function NewEventPage() {
   return (
     <div className="max-w-xl">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/admin" className="text-gray-400 hover:text-gray-700 transition-colors">
+        <Link href="/admin" className="transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>
           <ArrowLeft size={20} />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Nuovo evento</h1>
+        <h1 className="display text-2xl font-bold text-white drop-shadow">Nuovo evento</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="rounded-2xl p-6 flex flex-col gap-5" style={{ background: 'rgba(255,250,240,0.97)', boxShadow: '0 14px 34px rgba(7,33,24,0.15)', border: '1px solid rgba(255,255,255,0.6)' }}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nome evento *</label>
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: '#405f51' }}>Nome evento *</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+            className="w-full rounded-2xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
+            style={{ border: '1px solid #d9e4da' }}
             placeholder="Es. Addio al celibato - Marco"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Descrizione</label>
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: '#405f51' }}>Descrizione</label>
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
             rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent resize-none"
+            className="w-full rounded-2xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 resize-none"
+            style={{ border: '1px solid #d9e4da' }}
             placeholder="Note sull'evento..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: '#405f51' }}>Data</label>
           <input
             type="date"
             value={date}
             onChange={e => setDate(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+            className="w-full rounded-2xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2"
+            style={{ border: '1px solid #d9e4da' }}
           />
         </div>
 
         {error && (
-          <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <p className="text-sm rounded-xl px-4 py-2.5" style={{ color: '#a14f40', background: 'rgba(161,79,64,0.08)', border: '1px solid rgba(161,79,64,0.2)' }}>
             {error}
           </p>
         )}
@@ -87,14 +90,16 @@ export default function NewEventPage() {
         <div className="flex gap-3 pt-2">
           <Link
             href="/admin"
-            className="flex-1 text-center py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 text-center py-2.5 rounded-2xl text-sm font-semibold transition-colors hover:bg-[#eef5ef]"
+            style={{ border: '1px solid #d9e4da', color: '#17372d' }}
           >
             Annulla
           </Link>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
+            className="flex-1 flex items-center justify-center gap-2 disabled:opacity-60 font-semibold py-2.5 rounded-2xl transition-colors text-sm"
+            style={{ background: '#17372d', color: '#fff' }}
           >
             {loading && <Loader2 size={15} className="animate-spin" />}
             Crea evento

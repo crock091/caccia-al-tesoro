@@ -20,34 +20,38 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div
       className="min-h-screen flex flex-col"
       style={{
-        backgroundColor: '#f0f4f0',
-        backgroundImage: "url('/immagine-desktop.png')",
+        backgroundColor: 'rgb(23,55,45)',
+        backgroundImage: "url('/sfondo.jpeg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
       }}
     >
-      <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(240,244,240,0.20)', zIndex: 0 }} />
+      {/* Overlay forest */}
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'rgba(18,55,43,0.70)', zIndex: 0 }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 15% 20%, rgba(255,255,255,.16), transparent 26%), linear-gradient(to bottom, rgba(12,42,31,.1), rgba(12,42,31,.38))', zIndex: 1 }} />
       <ServiceWorkerRegistrar />
-      <header className="relative z-30 sticky top-0 px-4 py-0" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e5e7eb', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
-        <div className="max-w-6xl mx-auto h-16 flex items-center justify-between">
-          <div className="flex items-center gap-7">
-            <Link href="/admin" className="flex items-center gap-3">
-              <Image src="/Logo-sito-poll.avif" alt="Logo" width={110} height={110} className="rounded-xl shadow" />
+      {/* Navbar */}
+      <header
+        className="relative z-30 sticky top-0"
+        style={{ background: 'rgba(255,250,240,0.96)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(23,55,45,0.12)' }}
+      >
+        <div className="max-w-6xl mx-auto h-14 flex items-center justify-between px-5 md:px-8 gap-4">
+          <div className="flex items-center gap-5">
+            <Link href="/admin">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/Logo-sito-poll.avif" alt="Logo" style={{ height: '36px', width: 'auto' }} />
             </Link>
-            <nav className="hidden sm:flex items-center gap-1 text-sm">
-              <Link href="/admin" className="px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                <Users size={15} />
-                Eventi
+            <nav className="hidden sm:flex items-center gap-1">
+              <Link href="/admin" className="text-sm font-semibold px-3 py-2 rounded-xl flex items-center gap-2 transition-colors hover:bg-[#eef5ef]" style={{ color: '#17372d' }}>
+                <Users size={15} /> I tuoi eventi
               </Link>
-              <Link href="/admin/map" className="px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                <MapPin size={15} />
-                Mappa live
+              <Link href="/admin/map" className="text-sm font-semibold px-3 py-2 rounded-xl flex items-center gap-2 transition-colors hover:bg-[#eef5ef]" style={{ color: '#17372d' }}>
+                <MapPin size={15} /> Mappa live
               </Link>
-              <Link href="/admin/survey" className="px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                <Star size={15} />
-                Sondaggio
+              <Link href="/admin/survey" className="text-sm font-semibold px-3 py-2 rounded-xl flex items-center gap-2 transition-colors hover:bg-[#eef5ef]" style={{ color: '#17372d' }}>
+                <Star size={15} /> Sondaggio
               </Link>
             </nav>
           </div>
@@ -57,16 +61,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </div>
         {/* Navigazione mobile */}
-        <nav className="sm:hidden flex items-center gap-1 border-t border-gray-100">
-          <Link href="/admin" className="flex-1 flex flex-col items-center gap-0.5 text-gray-500 hover:text-green-700 py-2 text-xs font-medium transition-colors">
+        <nav className="sm:hidden flex items-center border-t" style={{ borderColor: 'rgba(23,55,45,0.10)' }}>
+          <Link href="/admin" className="flex-1 flex flex-col items-center gap-0.5 py-2 text-xs font-semibold transition-colors" style={{ color: '#17372d' }}>
             <Users size={18} />
             <span>Eventi</span>
           </Link>
-          <Link href="/admin/map" className="flex-1 flex flex-col items-center gap-0.5 text-gray-500 hover:text-green-700 py-2 text-xs font-medium transition-colors">
+          <Link href="/admin/map" className="flex-1 flex flex-col items-center gap-0.5 py-2 text-xs font-semibold transition-colors" style={{ color: '#17372d' }}>
             <MapPin size={18} />
             <span>Mappa live</span>
           </Link>
-          <Link href="/admin/survey" className="flex-1 flex flex-col items-center gap-0.5 text-gray-500 hover:text-green-700 py-2 text-xs font-medium transition-colors">
+          <Link href="/admin/survey" className="flex-1 flex flex-col items-center gap-0.5 py-2 text-xs font-semibold transition-colors" style={{ color: '#17372d' }}>
             <Star size={18} />
             <span>Sondaggio</span>
           </Link>

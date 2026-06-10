@@ -1,87 +1,81 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { MapPin, Camera, Map, ChevronRight } from 'lucide-react'
+import { Users, Map, ArrowUpRight } from 'lucide-react'
 import PoweredByFooter from '@/components/PoweredByFooter'
 import PwaRedirect from '@/components/PwaRedirect'
 
 export default function HomePage() {
   return (
-    <main
-      className="min-h-screen flex flex-col relative overflow-hidden"
-      style={{
-        backgroundColor: '#0a0b0d',
-        backgroundImage: `url('/game-bg.png')`,
-        backgroundSize: 'auto 100vh',
-        backgroundPosition: 'center top',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
+    <main className="min-h-screen relative overflow-x-hidden fade-in" style={{ background: 'rgb(23,55,45)' }}>
       <PwaRedirect />
-      {/* Gradiente che sbiadisce la parte bassa */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(5,10,15,0.45) 0%, rgba(5,10,15,0.75) 45%, rgba(5,10,15,0.97) 72%, rgba(5,10,15,1) 85%)' }}
+
+      {/* Sfondo vigneti */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="fixed inset-0 w-full h-full object-cover"
+        style={{ zIndex: -3 }}
+        src="/sfondo.jpeg"
+        alt="Vigneti nelle Langhe"
       />
+      {/* Overlay forest verde scuro */}
+      <div className="fixed inset-0" style={{ zIndex: -2, background: 'rgba(18,55,43,0.70)' }} />
+      {/* Sfumatura radiale + gradiente */}
+      <div className="fixed inset-0" style={{ zIndex: -1, background: 'radial-gradient(circle at 15% 20%, rgba(255,255,255,.16), transparent 26%), linear-gradient(to bottom, rgba(12,42,31,.1), rgba(12,42,31,.38))' }} />
 
-      {/* Contenuto in basso */}
-      <div className="relative z-10 mt-auto px-6 pb-4 pt-4 w-full max-w-sm mx-auto flex flex-col items-center text-center">
-        <div className="bg-white rounded-2xl p-3 mb-4 shadow-lg">
-          <Image src="/Logo-sito-poll.avif" alt="Logo" width={120} height={120} />
-        </div>
-        <h1
-          className="text-4xl font-black tracking-tight mb-1 leading-none"
-          style={{ color: '#6DAB3C', textShadow: '0 0 24px rgba(109,171,60,0.35)' }}
-        >
-          Caccia al Tesoro
-        </h1>
-        <p className="text-xs font-semibold tracking-widest uppercase mb-8" style={{ color: 'rgba(255,255,255,0.3)' }}>Langhe &amp; Roero</p>
+      <div className="w-full max-w-7xl mx-auto px-5 md:px-8 py-6 md:py-8 min-h-screen flex flex-col">
+        <header className="flex items-center justify-between">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Logo-sito-poll.avif" alt="Logo" style={{ height: '48px', width: 'auto' }} />
+        </header>
 
-        {/* CTA buttons */}
-        <div className="flex flex-col gap-3 w-full">
-          <Link
-            href="/join"
-            className="group flex items-center justify-between font-bold py-4 px-6 rounded-full text-base transition-all active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #6DAB3C, #206134)', color: '#0a0b0d', boxShadow: '0 8px 28px rgba(109,171,60,0.35)' }}
-          >
-            <span className="flex items-center gap-3">
-              <span className="text-xl">🗺️</span>
-              Partecipa a un evento
-            </span>
-            <ChevronRight size={20} />
-          </Link>
+        <div className="flex-1 flex items-center justify-center py-10">
+          <div className="max-w-5xl mx-auto px-4 w-full">
+            <p className="uppercase tracking-[0.22em] font-bold mb-4" style={{ color: 'rgb(231,200,156)', fontSize: '13px' }}>
+              Piccoli indizi. Grandi avventure.
+            </p>
+            <h1 className="display font-bold max-w-4xl leading-[1.02] mb-10 drop-shadow-sm text-white" style={{ fontSize: 'clamp(2.2rem, 6vw, 3.75rem)' }}>
+              Trasforma ogni luogo in una storia da scoprire.
+            </h1>
 
-          <Link
-            href="/admin/login"
-            className="group flex items-center justify-between font-semibold py-4 px-6 rounded-full text-base transition-all active:scale-95"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.75)' }}
-          >
-            <span className="flex items-center gap-3">
-              <span className="text-xl">⚙️</span>
-              Area organizzatore
-            </span>
-            <ChevronRight size={20} className="opacity-50" />
-          </Link>
-        </div>
+            <div className="flex flex-col gap-6 max-w-2xl">
+              {/* Card gruppo */}
+              <Link
+                href="/join"
+                className="text-left rounded-[1.7rem] p-5 md:p-6 transition-all duration-300 hover:-translate-y-1 block"
+                style={{ background: 'rgba(234,243,235,0.95)', border: '1px solid rgba(255,255,255,0.6)', boxShadow: '0 14px 34px rgba(7,33,24,.15)' }}
+              >
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 text-white" style={{ background: '#6f9d7d' }}>
+                  <Users size={20} />
+                </div>
+                <h2 className="display font-bold mb-2" style={{ color: 'rgb(23,55,45)', fontSize: '1.5rem' }}>
+                  Accesso gruppo
+                </h2>
+                <p className="text-sm leading-6" style={{ color: 'rgb(101,118,107)' }}>
+                  Inserisci il codice ricevuto e inizia subito la tua avventura.
+                </p>
+                <div className="mt-5 flex items-center gap-2 text-sm font-semibold" style={{ color: '#a16f33' }}>
+                  <span>Entra</span>
+                  <ArrowUpRight size={16} />
+                </div>
+              </Link>
 
-        {/* Feature pills */}
-        <div className="mt-8 flex gap-3">
-          {[
-            { icon: <MapPin size={16} style={{ color: '#6DAB3C' }} />, label: 'GPS live' },
-            { icon: <Camera size={16} style={{ color: '#6DAB3C' }} />, label: 'Prove foto' },
-            { icon: <Map size={16} style={{ color: '#6DAB3C' }} />, label: 'Mappa' },
-          ].map(f => (
-            <div
-              key={f.label}
-              className="flex flex-col items-center gap-1.5 px-4 py-3 rounded-2xl"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-            >
-              {f.icon}
-              <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>{f.label}</p>
+              {/* Badge organizzatore */}
+              <Link
+                href="/admin/login"
+                className="text-left rounded-2xl px-4 py-2.5 w-fit flex items-center gap-2 transition-colors hover:bg-white/15"
+                style={{ background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.30)', backdropFilter: 'blur(4px)' }}
+              >
+                <Map size={16} className="text-white" />
+                <span className="text-sm font-semibold text-white">Organizzatore</span>
+              </Link>
             </div>
-          ))}
+          </div>
         </div>
-        <PoweredByFooter dark />
       </div>
+
+      <PoweredByFooter />
     </main>
   )
 }
+
+
